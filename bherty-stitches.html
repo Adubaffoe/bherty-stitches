@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bherty Stitches — Handcrafted Crochet Dresses</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--cream:#f5ede0;--ww:#fdf8f3;--terra:#c4623a;--brown:#6b3d2e;--dark:#2a1a14;--muted:#9a7a6e;--gold:#d4a843;--sage:#8a9e7b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--ww);color:var(--dark);overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem;background:rgba(253,248,243,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(196,98,58,.15);}
+.logo{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--brown);}
+.logo span{color:var(--terra);font-style:italic;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-size:.82rem;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--brown);text-decoration:none;transition:color .3s;}
+.nav-links a:hover{color:var(--terra);}
+.nav-cart{background:var(--terra);color:white;border:none;padding:.6rem 1.2rem;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .3s;}
+.nav-cart:hover{background:var(--brown);}
+.badge{background:var(--gold);color:white;width:18px;height:18px;border-radius:50%;font-size:.62rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding-top:80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(196,98,58,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 20% 80%,rgba(212,168,67,.06) 0%,transparent 60%);}
+.hero-l{display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem 4rem 6rem;position:relative;z-index:1;}
+.eyebrow{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.25em;color:var(--terra);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem;}
+.eyebrow::before{content:'';display:inline-block;width:36px;height:1px;background:var(--terra);}
+.hero-h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,5rem);line-height:1.05;color:var(--dark);margin-bottom:1.5rem;}
+.hero-h1 em{color:var(--terra);font-style:italic;}
+.hero-p{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--muted);line-height:1.75;max-width:400px;margin-bottom:2.5rem;}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-p{background:var(--terra);color:white;padding:1rem 2rem;font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:all .3s;display:inline-block;}
+.btn-p:hover{background:var(--brown);transform:translateY(-2px);box-shadow:0 8px 24px rgba(107,61,46,.25);}
+.btn-o{background:transparent;color:var(--brown);padding:1rem 2rem;font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1.5px solid var(--brown);cursor:pointer;transition:all .3s;display:inline-block;}
+.btn-o:hover{background:var(--brown);color:white;}
+.hero-r{display:flex;align-items:center;justify-content:center;padding:4rem 4rem 4rem 2rem;}
+.hcard{background:var(--cream);padding:3rem 2.5rem;text-align:center;box-shadow:20px 20px 60px rgba(107,61,46,.12),-4px -4px 20px rgba(255,255,255,.8);position:relative;overflow:hidden;max-width:400px;width:100%;}
+.hcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--terra),var(--gold),var(--sage));}
+.hbadge{position:absolute;background:var(--gold);color:white;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:.4rem .9rem;top:-10px;right:-10px;}
+.yarn{font-size:5rem;display:block;margin-bottom:1rem;animation:flt 4s ease-in-out infinite;}
+@keyframes flt{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.hcard h3{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--brown);margin-bottom:.4rem;}
+.hcard p{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--muted);font-style:italic;margin-bottom:1.5rem;}
+.tags{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
+.tag{background:white;color:var(--terra);border:1px solid rgba(196,98,58,.25);padding:.3rem .8rem;font-size:.72rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
+
+/* MARQUEE */
+.marquee{background:var(--brown);color:var(--cream);padding:.9rem 0;overflow:hidden;white-space:nowrap;}
+.minner{display:inline-block;animation:mq 22s linear infinite;font-family:'Cormorant Garamond',serif;font-size:.95rem;letter-spacing:.15em;font-style:italic;}
+.minner span{color:var(--gold);margin:0 1.5rem;}
+@keyframes mq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* SECTIONS */
+section{padding:5rem 6rem;}
+.ey{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.25em;color:var(--terra);margin-bottom:.8rem;display:flex;align-items:center;gap:.8rem;}
+.ey::before{content:'';display:inline-block;width:28px;height:1px;background:var(--terra);}
+.sh{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3.5vw,2.9rem);line-height:1.15;color:var(--dark);margin-bottom:1rem;}
+.sh em{color:var(--terra);font-style:italic;}
+.ss{font-family:'Cormorant Garamond',serif;font-size:1.12rem;color:var(--muted);line-height:1.7;max-width:520px;}
+
+/* SHOP */
+#shop{background:var(--cream);}
+.shop-hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem;flex-wrap:wrap;gap:1.5rem;}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;}
+.pcard{background:var(--ww);cursor:pointer;transition:all .35s;position:relative;overflow:hidden;}
+.pcard:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(107,61,46,.15);}
+.pimg{height:280px;display:flex;align-items:center;justify-content:center;font-size:5.5rem;position:relative;}
+.pimg.c1{background:linear-gradient(135deg,#f0e0d0,#e8c9b0);}
+.pimg.c2{background:linear-gradient(135deg,#dde8d5,#c5d9b8);}
+.pimg.c3{background:linear-gradient(135deg,#e8d5e0,#d4b8c8);}
+.pimg.c4{background:linear-gradient(135deg,#e8e0cc,#d9cc9e);}
+.pimg.c5{background:linear-gradient(135deg,#d5dde8,#b8c8d9);}
+.pimg.c6{background:linear-gradient(135deg,#e8d5cc,#d9b4a5);}
+.pbadge{position:absolute;top:12px;left:12px;background:var(--terra);color:white;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .7rem;}
+.pbody{padding:1.3rem;}
+.pname{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--dark);margin-bottom:.25rem;}
+.pdesc{font-size:.8rem;color:var(--muted);margin-bottom:.9rem;line-height:1.5;}
+.pfooter{display:flex;align-items:center;justify-content:space-between;}
+.pprice{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--terra);font-weight:700;}
+.stars{color:var(--gold);font-size:.68rem;letter-spacing:.06em;margin-bottom:.25rem;}
+.abtn{background:var(--dark);color:white;border:none;padding:.5rem 1rem;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .3s;}
+.abtn:hover{background:var(--terra);}
+.abtn.done{background:var(--sage);}
+
+/* ABOUT */
+#about{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;background:var(--ww);padding:5rem 6rem;}
+.acard{background:var(--cream);padding:3rem;position:relative;box-shadow:16px 16px 48px rgba(107,61,46,.12);}
+.acard::after{content:'';position:absolute;bottom:-14px;right:-14px;width:100%;height:100%;border:2px solid rgba(196,98,58,.25);z-index:-1;}
+.ae{font-size:4rem;display:block;margin-bottom:1rem;}
+.astats{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1.5rem;}
+.astat{text-align:center;padding:.9rem;background:white;}
+.asn{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--terra);display:block;}
+.asl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.afeat{list-style:none;margin-top:1.5rem;display:flex;flex-direction:column;gap:.85rem;}
+.afeat li{display:flex;align-items:flex-start;gap:.8rem;font-size:.88rem;color:var(--dark);line-height:1.5;}
+.afeat li::before{content:'✦';color:var(--terra);font-size:.65rem;margin-top:.3rem;flex-shrink:0;}
+
+/* ORDER SECTION */
+#order{background:var(--cream);}
+.olayout{display:grid;grid-template-columns:1fr 1.3fr;gap:4rem;align-items:start;margin-top:3rem;}
+.oinfo h3{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--dark);margin-bottom:.9rem;margin-top:1.5rem;}
+.oinfo h3:first-child{margin-top:0;}
+.oinfo p{font-size:.86rem;color:var(--muted);line-height:1.7;margin-bottom:.4rem;}
+.osteps{display:flex;flex-direction:column;gap:1.1rem;margin-top:1.3rem;}
+.ostep{display:flex;align-items:flex-start;gap:.9rem;}
+.osn{background:var(--terra);color:white;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0;}
+.ost{font-size:.86rem;color:var(--dark);line-height:1.6;}
+.ost strong{display:block;color:var(--brown);margin-bottom:.15rem;}
+.oform{background:white;padding:2.5rem;box-shadow:0 8px 40px rgba(107,61,46,.1);border-top:3px solid var(--terra);}
+.ftitle{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--dark);margin-bottom:.3rem;}
+.fsub{font-size:.8rem;color:var(--muted);margin-bottom:1.8rem;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.fg{margin-bottom:1.1rem;}
+.fg label{display:block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--brown);margin-bottom:.35rem;}
+.fg input,.fg select,.fg textarea{width:100%;padding:.75rem 1rem;border:1.5px solid rgba(107,61,46,.2);background:var(--ww);font-family:'DM Sans',sans-serif;font-size:.86rem;color:var(--dark);outline:none;transition:border-color .3s;appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--terra);background:white;}
+.fg textarea{resize:vertical;min-height:85px;}
+.sbtn{width:100%;background:var(--terra);color:white;border:none;padding:1.05rem;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:.4rem;}
+.sbtn:hover{background:var(--brown);transform:translateY(-1px);}
+.smsg{display:none;background:#e8f5e0;border:1px solid #8abc6e;color:#3a6e20;padding:.9rem 1.2rem;font-size:.85rem;margin-top:.9rem;text-align:center;}
+
+/* TESTIMONIALS */
+#testimonials{background:var(--brown);}
+#testimonials .ey{color:var(--gold);}
+#testimonials .ey::before{background:var(--gold);}
+#testimonials .sh{color:var(--cream);}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem;}
+.tcard{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:2rem;position:relative;}
+.tcard::before{content:'"';font-family:'Playfair Display',serif;font-size:5rem;color:var(--gold);opacity:.3;position:absolute;top:-1rem;left:1.2rem;line-height:1;}
+.ttext{font-family:'Cormorant Garamond',serif;font-size:1rem;color:rgba(245,237,224,.9);line-height:1.75;font-style:italic;margin-bottom:1.3rem;}
+.tauthor{display:flex;align-items:center;gap:.8rem;}
+.tavatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(212,168,67,.2);}
+.tname{font-size:.83rem;font-weight:600;color:var(--cream);}
+.tloc{font-size:.7rem;color:var(--gold);opacity:.8;}
+
+/* FOOTER */
+footer{background:var(--dark);color:var(--cream);padding:4rem 6rem 2rem;}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:3rem;margin-bottom:3rem;}
+.fbrand h3{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.8rem;}
+.fbrand h3 span{color:var(--terra);font-style:italic;}
+.fbrand p{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:rgba(245,237,224,.55);line-height:1.7;font-style:italic;max-width:260px;}
+.fcol h4{font-size:.68rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gold);margin-bottom:1.1rem;}
+.fcol ul{list-style:none;}
+.fcol ul li{margin-bottom:.55rem;}
+.fcol ul li a{font-size:.83rem;color:rgba(245,237,224,.6);text-decoration:none;transition:color .3s;}
+.fcol ul li a:hover{color:var(--terra);}
+.fcontact p{font-size:.83rem;color:rgba(245,237,224,.6);line-height:1.9;}
+.fcontact a{color:var(--terra);text-decoration:none;}
+.fbot{border-top:1px solid rgba(245,237,224,.1);padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;}
+.fbot p{font-size:.75rem;color:rgba(245,237,224,.3);}
+.socials{display:flex;gap:.8rem;}
+.socials a{width:32px;height:32px;border:1px solid rgba(245,237,224,.2);display:flex;align-items:center;justify-content:center;font-size:.82rem;color:rgba(245,237,224,.45);text-decoration:none;transition:all .3s;}
+.socials a:hover{border-color:var(--terra);color:var(--terra);}
+
+/* ═══════════════════════
+   OVERLAY
+═══════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(42,26,20,.55);z-index:400;opacity:0;pointer-events:none;transition:opacity .3s;}
+.overlay.open{opacity:1;pointer-events:all;}
+
+/* ═══════════════════════
+   CART DRAWER
+═══════════════════════ */
+.cart-drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:var(--ww);z-index:500;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(42,26,20,.15);}
+.cart-drawer.open{transform:translateX(0);}
+.drawer-head{padding:1.5rem 1.8rem;border-bottom:1px solid rgba(107,61,46,.12);display:flex;align-items:center;justify-content:space-between;background:white;}
+.drawer-head h2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--dark);}
+.xbtn{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);transition:color .2s;line-height:1;padding:.2rem;}
+.xbtn:hover{color:var(--dark);}
+.cart-body{flex:1;overflow-y:auto;padding:1.5rem 1.8rem;}
+.cart-empty{text-align:center;padding:3rem 1rem;}
+.cart-empty span{font-size:3.5rem;display:block;margin-bottom:1rem;}
+.cart-empty p{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--muted);font-style:italic;}
+.ci{display:flex;align-items:center;gap:1rem;padding:1rem 0;border-bottom:1px solid rgba(107,61,46,.08);}
+.ci-img{width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;flex-shrink:0;background:var(--cream);}
+.ci-info{flex:1;}
+.ci-name{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--dark);margin-bottom:.2rem;}
+.ci-price{font-size:.83rem;color:var(--terra);font-weight:600;}
+.qty{display:flex;align-items:center;gap:.5rem;}
+.qbtn{background:var(--cream);border:1px solid rgba(107,61,46,.2);width:26px;height:26px;cursor:pointer;font-size:.9rem;font-weight:700;color:var(--brown);display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.qbtn:hover{background:var(--terra);color:white;border-color:var(--terra);}
+.qnum{font-size:.85rem;font-weight:600;min-width:20px;text-align:center;}
+.rbtn{background:none;border:none;color:var(--muted);font-size:.85rem;cursor:pointer;padding:.2rem;transition:color .2s;}
+.rbtn:hover{color:var(--terra);}
+.cart-foot{padding:1.5rem 1.8rem;border-top:1px solid rgba(107,61,46,.12);background:white;}
+.ctotal{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;}
+.ctotal-lbl{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
+.ctotal-amt{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--dark);}
+.cobtn{width:100%;background:var(--terra);color:white;border:none;padding:1rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.cobtn:hover{background:var(--brown);}
+
+/* ═══════════════════════
+   CHECKOUT MODAL
+═══════════════════════ */
+.co-modal{position:fixed;top:0;right:0;bottom:0;width:560px;max-width:100vw;background:var(--ww);z-index:600;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(42,26,20,.2);}
+.co-modal.open{transform:translateX(0);}
+.co-head{padding:1.5rem 2rem;background:white;border-bottom:1px solid rgba(107,61,46,.1);}
+.co-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem;}
+.co-head-row h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--dark);}
+
+/* Step indicator */
+.stepbar{display:flex;align-items:center;}
+.sdot{display:flex;flex-direction:column;align-items:center;gap:.3rem;}
+.sdot-c{width:32px;height:32px;border-radius:50%;border:2px solid rgba(107,61,46,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--muted);background:white;transition:all .3s;}
+.sdot-l{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);white-space:nowrap;transition:color .3s;}
+.sdot.active .sdot-c{border-color:var(--terra);background:var(--terra);color:white;}
+.sdot.active .sdot-l{color:var(--terra);font-weight:700;}
+.sdot.done .sdot-c{border-color:var(--sage);background:var(--sage);color:white;}
+.sdot.done .sdot-l{color:var(--sage);}
+.sline{flex:1;height:2px;background:rgba(107,61,46,.15);margin:0 .4rem 1.3rem;transition:background .3s;}
+.sline.done{background:var(--sage);}
+
+/* Panels */
+.co-body{flex:1;overflow-y:auto;padding:2rem;}
+.panel{display:none;}
+.psec-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark);margin-bottom:1.5rem;padding-bottom:.7rem;border-bottom:1px solid rgba(107,61,46,.1);}
+
+/* Delivery choice */
+.dchoice{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+.dcard{border:2px solid rgba(107,61,46,.15);padding:1.4rem 1rem;cursor:pointer;text-align:center;transition:all .3s;background:white;position:relative;}
+.dcard:hover{border-color:var(--terra);}
+.dcard.sel{border-color:var(--terra);background:rgba(196,98,58,.04);}
+.dcard.sel::after{content:'✓';position:absolute;top:8px;right:10px;color:var(--terra);font-weight:700;font-size:.85rem;}
+.dcard-icon{font-size:2.2rem;display:block;margin-bottom:.6rem;}
+.dcard-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--dark);margin-bottom:.25rem;}
+.dcard-sub{font-size:.73rem;color:var(--muted);line-height:1.4;}
+.dcard.sel .dcard-title{color:var(--terra);}
+.pickup-info{background:rgba(196,98,58,.05);border:1px solid rgba(196,98,58,.2);padding:1.2rem 1.3rem;margin-top:.5rem;}
+.pickup-info strong{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--terra);margin-bottom:.4rem;}
+.pickup-info p{font-size:.85rem;color:var(--brown);line-height:1.7;}
+
+/* Summary */
+.sumbox{background:var(--cream);padding:1.4rem;margin-bottom:1.5rem;}
+.srow{display:flex;justify-content:space-between;align-items:flex-start;font-size:.85rem;color:var(--dark);padding:.4rem 0;border-bottom:1px solid rgba(107,61,46,.08);}
+.srow:last-child{border-bottom:none;}
+.srow.stitle{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--terra);padding:.6rem 0 .2rem;border-bottom:none;}
+.srow.sdetail{font-size:.77rem;color:var(--muted);padding:.2rem 0;border-bottom:none;}
+.srow.stotal{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--terra);font-weight:700;padding-top:.7rem;margin-top:.3rem;border-top:2px solid rgba(107,61,46,.15);border-bottom:none;}
+
+/* Nav */
+.co-nav{padding:1.3rem 2rem;border-top:1px solid rgba(107,61,46,.1);background:white;display:flex;gap:.8rem;}
+.co-back{flex:0 0 auto;background:transparent;color:var(--brown);border:1.5px solid rgba(107,61,46,.3);padding:.85rem 1.4rem;font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.co-back:hover{border-color:var(--brown);background:var(--brown);color:white;}
+.co-next{flex:1;background:var(--terra);color:white;border:none;padding:.9rem;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.co-next:hover{background:var(--brown);}
+
+/* Success */
+.co-success{display:none;text-align:center;padding:3rem 2rem;}
+.suc-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:pop .5s ease;}
+@keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.15);}100%{transform:scale(1);}}
+.co-success h3{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--dark);margin-bottom:.6rem;}
+.co-success p{font-size:.88rem;color:var(--muted);line-height:1.7;max-width:340px;margin:0 auto 1.5rem;}
+.wa-btn{background:#25d366;color:white;border:none;padding:.9rem 2rem;font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:.6rem;transition:background .3s;}
+.wa-btn:hover{background:#128c7e;}
+
+/* FAB */
+.fab{position:fixed;bottom:2rem;right:2rem;background:var(--terra);color:white;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;box-shadow:0 8px 24px rgba(196,98,58,.45);z-index:300;border:none;transition:all .3s;}
+.fab:hover{transform:scale(1.08);background:var(--brown);}
+.fab-badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:white;width:20px;height:20px;border-radius:50%;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  section,#about{padding:4rem 3rem;}
+  nav{padding:1.2rem 2rem;}
+  .hero{grid-template-columns:1fr;}
+  .hero-l{padding:4rem 2rem 2rem;}
+  .hero-r{display:none;}
+  .pgrid{grid-template-columns:repeat(2,1fr);}
+  #about{grid-template-columns:1fr;}
+  .fgrid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:640px){
+  nav{padding:1rem 1.2rem;}
+  .nav-links{display:none;}
+  section,#about{padding:3rem 1.5rem;}
+  .pgrid,.tgrid{grid-template-columns:1fr;}
+  .olayout{grid-template-columns:1fr;}
+  .frow{grid-template-columns:1fr;}
+  footer{padding:3rem 1.5rem 1.5rem;}
+  .fgrid{grid-template-columns:1fr;gap:2rem;}
+  .co-modal,.cart-drawer{width:100vw;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="logo">Bherty <span>Stitches</span></div>
+  <ul class="nav-links">
+    <li><a href="#shop">Shop</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#order">Custom Order</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+  </ul>
+  <button class="nav-cart" onclick="openCart()">🛒 Cart <span class="badge" id="navBadge">0</span></button>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-l">
+    <div class="eyebrow">Handcrafted with love</div>
+    <h1 class="hero-h1">Where Every Stitch<br/>Tells a <em>Story</em></h1>
+    <p class="hero-p">Beautifully handmade crochet dresses crafted to order. Each piece is unique, made with premium yarn and artisan skill.</p>
+    <div class="hero-btns">
+      <a href="#shop" class="btn-p">Browse Collection</a>
+      <a href="#order" class="btn-o">Custom Order</a>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div class="hcard">
+      <div class="hbadge">✦ Handmade</div>
+      <span class="yarn">🧶</span>
+      <h3>Bherty Stitches</h3>
+      <p>Premium Crochet Fashion</p>
+      <div class="tags">
+        <span class="tag">Dresses</span>
+        <span class="tag">Custom Orders</span>
+        <span class="tag">Handmade</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee">
+  <div class="minner">
+    Handcrafted with love <span>✦</span> Premium crochet fashion <span>✦</span> Custom orders welcome <span>✦</span> Made to fit you perfectly <span>✦</span> Bherty Stitches <span>✦</span>
+    Handcrafted with love <span>✦</span> Premium crochet fashion <span>✦</span> Custom orders welcome <span>✦</span> Made to fit you perfectly <span>✦</span> Bherty Stitches <span>✦</span>
+    Handcrafted with love <span>✦</span> Premium crochet fashion <span>✦</span> Custom orders welcome <span>✦</span> Made to fit you perfectly <span>✦</span> Bherty Stitches <span>✦</span>
+    Handcrafted with love <span>✦</span> Premium crochet fashion <span>✦</span> Custom orders welcome <span>✦</span> Made to fit you perfectly <span>✦</span> Bherty Stitches <span>✦</span>
+  </div>
+</div>
+
+<!-- ══ SHOP ══ -->
+<section id="shop">
+  <div class="shop-hdr">
+    <div>
+      <div class="ey">Our Collection</div>
+      <h2 class="sh">Ready-to-Ship <em>Dresses</em></h2>
+      <p class="ss">Each dress is lovingly handcrafted. Limited pieces available.</p>
+    </div>
+    <a href="#order" class="btn-o">Custom Order →</a>
+  </div>
+  <div class="pgrid">
+    <div class="pcard">
+      <div class="pimg c1"><div class="pbadge">New</div>🌸</div>
+      <div class="pbody"><div class="stars">★★★★★</div><h3 class="pname">Summer Bloom Dress</h3><p class="pdesc">Airy open-stitch crochet mini dress with floral motif. Perfect for warm days.</p><div class="pfooter"><span class="pprice">GH₵ 350</span><button class="abtn" data-id="1" onclick="addToCart(1)">Add to Cart</button></div></div>
+    </div>
+    <div class="pcard">
+      <div class="pimg c2"><div class="pbadge">Bestseller</div>🌿</div>
+      <div class="pbody"><div class="stars">★★★★★</div><h3 class="pname">Garden Maxi Dress</h3><p class="pdesc">Flowy maxi in sage green with intricate leaf-pattern stitching throughout.</p><div class="pfooter"><span class="pprice">GH₵ 480</span><button class="abtn" data-id="2" onclick="addToCart(2)">Add to Cart</button></div></div>
+    </div>
+    <div class="pcard">
+      <div class="pimg c3">🌷</div>
+      <div class="pbody"><div class="stars">★★★★☆</div><h3 class="pname">Rosette Mini</h3><p class="pdesc">Delicate rose-toned mini with scallop hem and adjustable straps.</p><div class="pfooter"><span class="pprice">GH₵ 295</span><button class="abtn" data-id="3" onclick="addToCart(3)">Add to Cart</button></div></div>
+    </div>
+    <div class="pcard">
+      <div class="pimg c4"><div class="pbadge">Limited</div>☀️</div>
+      <div class="pbody"><div class="stars">★★★★★</div><h3 class="pname">Golden Hour Dress</h3><p class="pdesc">Sun-kissed honey tones. Midi length with butterfly-stitch bodice.</p><div class="pfooter"><span class="pprice">GH₵ 420</span><button class="abtn" data-id="4" onclick="addToCart(4)">Add to Cart</button></div></div>
+    </div>
+    <div class="pcard">
+      <div class="pimg c5">🌊</div>
+      <div class="pbody"><div class="stars">★★★★★</div><h3 class="pname">Ocean Breeze Dress</h3><p class="pdesc">Cool ocean blues in a relaxed mesh-crochet silhouette. Beach-ready perfection.</p><div class="pfooter"><span class="pprice">GH₵ 365</span><button class="abtn" data-id="5" onclick="addToCart(5)">Add to Cart</button></div></div>
+    </div>
+    <div class="pcard">
+      <div class="pimg c6"><div class="pbadge">New</div>🍂</div>
+      <div class="pbody"><div class="stars">★★★★★</div><h3 class="pname">Terracotta Dreams</h3><p class="pdesc">Earthy rust tones in a bodycon-style dress with textured diamond pattern.</p><div class="pfooter"><span class="pprice">GH₵ 395</span><button class="abtn" data-id="6" onclick="addToCart(6)">Add to Cart</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="acard">
+    <span class="ae">👩🏾‍🎨</span>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--brown);margin-bottom:.4rem;">Meet the Maker</h3>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--muted);font-style:italic;line-height:1.7;">Every Bherty Stitches piece is made with passion, patience, and the finest yarn — created to make you feel beautiful.</p>
+    <div class="astats">
+      <div class="astat"><span class="asn">200+</span><span class="asl">Happy Clients</span></div>
+      <div class="astat"><span class="asn">5★</span><span class="asl">Avg. Rating</span></div>
+      <div class="astat"><span class="asn">50+</span><span class="asl">Designs</span></div>
+      <div class="astat"><span class="asn">3+</span><span class="asl">Years of Craft</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="ey">Our Story</div>
+    <h2 class="sh">Crafted with <em>Passion</em></h2>
+    <p class="ss">Bherty Stitches was born from a deep love for the art of crochet. Every stitch is intentional, every piece unique — made to celebrate the woman who wears it.</p>
+    <ul class="afeat" style="margin-top:1.5rem;">
+      <li>100% handmade with premium quality yarns</li>
+      <li>Custom sizing — made to fit your exact measurements</li>
+      <li>Choose your own colours and style preferences</li>
+      <li>Each piece takes 3–10 days of careful crafting</li>
+      <li>Designed for the modern African woman — bold and one-of-a-kind</li>
+    </ul>
+    <div style="margin-top:2rem;"><a href="#order" class="btn-p">Start a Custom Order</a></div>
+  </div>
+</section>
+
+<!-- ══ CUSTOM ORDER SECTION ══ -->
+<section id="order">
+  <div class="ey">Custom Orders</div>
+  <h2 class="sh">Order Your <em>Dream Dress</em></h2>
+  <p class="ss">Tell us exactly what you want. We'll handcraft it just for you.</p>
+  <div class="olayout">
+    <div class="oinfo">
+      <h3>How it works</h3>
+      <div class="osteps">
+        <div class="ostep"><div class="osn">1</div><div class="ost"><strong>Fill the Order Form</strong>Share your measurements, colour preferences, and style ideas.</div></div>
+        <div class="ostep"><div class="osn">2</div><div class="ost"><strong>Receive Confirmation</strong>We'll reach out within 24 hours to confirm details and pricing.</div></div>
+        <div class="ostep"><div class="osn">3</div><div class="ost"><strong>We Get to Work</strong>Your dress is handcrafted with care over 3–10 days.</div></div>
+        <div class="ostep"><div class="osn">4</div><div class="ost"><strong>Delivered to You</strong>Packaged beautifully — delivered or ready for pickup.</div></div>
+      </div>
+      <h3>Pricing Guide</h3>
+      <p>Mini Dresses: from GH₵ 250</p>
+      <p>Midi Dresses: from GH₵ 350</p>
+      <p>Maxi Dresses: from GH₵ 450</p>
+      <p>Rush orders (under 3 days): + GH₵ 100</p>
+      <p style="margin-top:.8rem;font-style:italic;">Final price depends on complexity and yarn type.</p>
+    </div>
+    <div class="oform">
+      <div class="ftitle">Place Your Order</div>
+      <div class="fsub">Fill in the form and we'll be in touch shortly ✨</div>
+      <div class="frow">
+        <div class="fg"><label>First Name *</label><input type="text" id="firstName" placeholder="Ama"/></div>
+        <div class="fg"><label>Last Name *</label><input type="text" id="lastName" placeholder="Mensah"/></div>
+      </div>
+      <div class="fg"><label>Phone Number *</label><input type="tel" id="phone" placeholder="+233 XX XXX XXXX"/></div>
+      <div class="fg"><label>Email Address</label><input type="email" id="email" placeholder="ama@email.com"/></div>
+      <div class="frow">
+        <div class="fg"><label>Dress Style *</label><select id="style"><option value="">Select style</option><option>Mini Dress</option><option>Midi Dress</option><option>Maxi Dress</option><option>Custom</option></select></div>
+        <div class="fg"><label>Colour Preference *</label><input type="text" id="colour" placeholder="e.g. Coral, White"/></div>
+      </div>
+      <div class="fg"><label>Measurements (chest/waist/hips/height)</label><input type="text" id="meas" placeholder="e.g. 36/28/38/5'6"/></div>
+      <div class="fg"><label>Special Requests</label><textarea id="details" placeholder="Occasion, pattern, deadline..."></textarea></div>
+      <button class="sbtn" onclick="submitOrder()">✦ Submit My Order</button>
+      <div class="smsg" id="smsg">🎉 Thank you! Your order has been received. We'll reach out within 24 hours.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIALS ══ -->
+<section id="testimonials">
+  <div class="ey">Client Love</div>
+  <h2 class="sh" style="color:var(--cream);">What Our <em>Clients Say</em></h2>
+  <div class="tgrid">
+    <div class="tcard"><div class="stars" style="color:var(--gold);">★★★★★</div><p class="ttext">I ordered a custom maxi dress for my birthday and it was absolutely stunning. Everyone kept asking where I got it. Bherty Stitches is everything!</p><div class="tauthor"><div class="tavatar">👩🏾</div><div><div class="tname">Abena K.</div><div class="tloc">Accra, Ghana</div></div></div></div>
+    <div class="tcard"><div class="stars" style="color:var(--gold);">★★★★★</div><p class="ttext">The quality is incredible — so much detail in every stitch. My dress arrived perfectly packaged and fit like a dream. I'm already planning my next order!</p><div class="tauthor"><div class="tavatar">👩🏽</div><div><div class="tname">Efua T.</div><div class="tloc">Kumasi, Ghana</div></div></div></div>
+    <div class="tcard"><div class="stars" style="color:var(--gold);">★★★★★</div><p class="ttext">Fast delivery, beautiful craftsmanship, and the seller was so communicative. This is true artistry. I've recommended Bherty Stitches to all my friends!</p><div class="tauthor"><div class="tavatar">👩🏿</div><div><div class="tname">Adwoa M.</div><div class="tloc">Takoradi, Ghana</div></div></div></div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="fgrid">
+    <div class="fbrand"><h3>Bherty <span>Stitches</span></h3><p>Handcrafted crochet fashion made with love. Wearable art for the modern woman.</p></div>
+    <div class="fcol"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#shop">Shop</a></li><li><a href="#about">About</a></li><li><a href="#order">Custom Orders</a></li><li><a href="#testimonials">Reviews</a></li></ul></div>
+    <div class="fcol"><h4>Policies</h4><ul><li><a href="#">Shipping Info</a></li><li><a href="#">Returns Policy</a></li><li><a href="#">Care Guide</a></li><li><a href="#">Size Guide</a></li><li><a href="#">FAQs</a></li></ul></div>
+    <div class="fcol fcontact"><h4>Get in Touch</h4><p>📍 Kasoa, Ghana</p><p>💬 <a href="https://wa.me/message/UYA6ZRENI4P7O1" target="_blank">WhatsApp Us</a></p><p>📧 <a href="mailto:quansahbetty@gmail.com">quansahbetty@gmail.com</a></p><p style="margin-top:.6rem;">Mon – Sat: 8am – 6pm</p></div>
+  </div>
+  <div class="fbot"><p>© 2025 Bherty Stitches. All rights reserved. Made with 🧶 and love.</p><div class="socials"><a href="#" title="Instagram">📸</a><a href="#" title="Facebook">💙</a><a href="https://wa.me/message/UYA6ZRENI4P7O1" target="_blank" title="WhatsApp">💬</a><a href="#" title="TikTok">🎵</a></div></div>
+</footer>
+
+<!-- FAB -->
+<button class="fab" onclick="openCart()" title="View Cart">🛒<span class="fab-badge" id="fabBadge">0</span></button>
+
+<!-- ═══════════════════════════════
+     CART DRAWER
+═══════════════════════════════ -->
+<div class="overlay" id="cartOv" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="drawer-head"><h2>Your Cart 🧶</h2><button class="xbtn" onclick="closeCart()">✕</button></div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty" id="cartEmpty"><span>🛒</span><p>Your cart is empty.<br/>Add some beautiful dresses!</p></div>
+    <div id="cartList"></div>
+  </div>
+  <div class="cart-foot" id="cartFoot" style="display:none;">
+    <div class="ctotal"><span class="ctotal-lbl">Total</span><span class="ctotal-amt" id="cartTotal">GH₵ 0</span></div>
+    <button class="cobtn" onclick="openCheckout()">✦ Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     CHECKOUT MODAL
+═══════════════════════════════ -->
+<div class="overlay" id="coOv" onclick="closeCheckout()"></div>
+<div class="co-modal" id="coModal">
+
+  <div class="co-head">
+    <div class="co-head-row"><h2>Checkout</h2><button class="xbtn" onclick="closeCheckout()">✕</button></div>
+    <div class="stepbar">
+      <div class="sdot active" id="sd1"><div class="sdot-c">1</div><div class="sdot-l">Your Info</div></div>
+      <div class="sline" id="sl1"></div>
+      <div class="sdot" id="sd2"><div class="sdot-c">2</div><div class="sdot-l">Delivery</div></div>
+      <div class="sline" id="sl2"></div>
+      <div class="sdot" id="sd3"><div class="sdot-c">3</div><div class="sdot-l">Review</div></div>
+    </div>
+  </div>
+
+  <div class="co-body">
+
+    <!-- SUCCESS -->
+    <div class="co-success" id="coSuccess">
+      <span class="suc-icon">🎉</span>
+      <h3>Order Placed!</h3>
+      <p>Your order details are ready. Click below to send them to us on WhatsApp — we'll confirm and share payment info shortly.</p>
+      <button class="wa-btn" id="waBtn">💬 Send via WhatsApp</button>
+      <p style="margin-top:1rem;font-size:.78rem;color:var(--muted);">We'll confirm your order and provide payment details within a few hours.</p>
+    </div>
+
+    <!-- PANEL 1: Contact Info -->
+    <div class="panel" id="p1">
+      <div class="psec-title">Your Contact Details</div>
+      <div class="frow">
+        <div class="fg"><label>First Name *</label><input type="text" id="co_fn" placeholder="Ama"/></div>
+        <div class="fg"><label>Last Name *</label><input type="text" id="co_ln" placeholder="Mensah"/></div>
+      </div>
+      <div class="fg"><label>Phone Number *</label><input type="tel" id="co_ph" placeholder="+233 XX XXX XXXX"/></div>
+      <div class="fg"><label>Email Address (optional)</label><input type="email" id="co_em" placeholder="ama@email.com"/></div>
+      <div class="fg"><label>Your Measurements — chest / waist / hips / height (optional for ready-to-ship)</label><input type="text" id="co_meas" placeholder="e.g. 36 / 28 / 38 / 5'6"/></div>
+      <div class="fg"><label>Special Notes or Requests</label><textarea id="co_notes" placeholder="Any special requests, colour preferences, deadline..."></textarea></div>
+    </div>
+
+    <!-- PANEL 2: Delivery -->
+    <div class="panel" id="p2">
+      <div class="psec-title">How Would You Like to Receive Your Order?</div>
+      <div class="dchoice">
+        <div class="dcard" id="dc-del" onclick="selDel('delivery')">
+          <span class="dcard-icon">🚚</span>
+          <div class="dcard-title">Home Delivery</div>
+          <div class="dcard-sub">We bring it straight to your door. Delivery fee confirmed via WhatsApp.</div>
+        </div>
+        <div class="dcard" id="dc-pick" onclick="selDel('pickup')">
+          <span class="dcard-icon">🏠</span>
+          <div class="dcard-title">Studio Pickup</div>
+          <div class="dcard-sub">Collect from our studio in Kasoa. Completely free.</div>
+        </div>
+      </div>
+
+      <!-- Delivery address fields -->
+      <div id="delFields" style="display:none;">
+        <div class="fg"><label>Street / House Address *</label><input type="text" id="co_addr" placeholder="e.g. House No. 12, Sunrise Road"/></div>
+        <div class="frow">
+          <div class="fg"><label>Town / Area *</label><input type="text" id="co_town" placeholder="e.g. Kasoa, Accra, Tema"/></div>
+          <div class="fg"><label>Region *</label>
+            <select id="co_reg">
+              <option value="">Select region</option>
+              <option>Greater Accra</option><option>Ashanti</option><option>Central</option><option>Western</option><option>Eastern</option><option>Volta</option><option>Northern</option><option>Upper East</option><option>Upper West</option><option>Brong-Ahafo</option><option>Oti</option><option>Savannah</option><option>North East</option><option>Western North</option><option>Ahafo</option><option>Bono East</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>Nearest Landmark (optional)</label><input type="text" id="co_lm" placeholder="e.g. Near Accra Mall, opposite the school"/></div>
+        <div class="fg"><label>Preferred Delivery Date (optional)</label><input type="date" id="co_ddate"/></div>
+      </div>
+
+      <!-- Pickup fields -->
+      <div id="pickFields" style="display:none;">
+        <div class="pickup-info">
+          <strong>📍 Studio Location</strong>
+          <p>Bherty Stitches Studio, Kasoa, Central Region.<br/>We'll send you the exact address and directions via WhatsApp once your order is confirmed.</p>
+        </div>
+        <div class="fg" style="margin-top:1rem;"><label>Preferred Pickup Date (optional)</label><input type="date" id="co_pdate"/></div>
+        <div class="fg"><label>Preferred Pickup Time (optional)</label>
+          <select id="co_ptime">
+            <option value="">Any time during business hours</option>
+            <option>Morning (8am – 12pm)</option>
+            <option>Afternoon (12pm – 4pm)</option>
+            <option>Evening (4pm – 6pm)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: Review -->
+    <div class="panel" id="p3">
+      <div class="psec-title">Review & Confirm Your Order</div>
+      <div class="sumbox" id="sumBox"></div>
+      <p style="font-size:.8rem;color:var(--muted);line-height:1.65;margin-bottom:1rem;">By placing your order, we'll send all your details to our WhatsApp. We'll confirm your order and provide payment information shortly. 🧶</p>
+    </div>
+
+  </div><!-- /co-body -->
+
+  <div class="co-nav" id="coNav">
+    <button class="co-back" id="backBtn" onclick="goBack()" style="display:none;">← Back</button>
+    <button class="co-next" id="nextBtn" onclick="goNext()">Continue →</button>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const PRODS = {
+  1:{name:'Summer Bloom Dress',price:350,emoji:'🌸'},
+  2:{name:'Garden Maxi Dress',price:480,emoji:'🌿'},
+  3:{name:'Rosette Mini',price:295,emoji:'🌷'},
+  4:{name:'Golden Hour Dress',price:420,emoji:'☀️'},
+  5:{name:'Ocean Breeze Dress',price:365,emoji:'🌊'},
+  6:{name:'Terracotta Dreams',price:395,emoji:'🍂'},
+};
+
+let cart = {};
+let step = 1;
+let delMode = null;
+
+// ── CART ──
+function addToCart(id) {
+  cart[id] = (cart[id]||0)+1;
+  updateBadges();
+  renderCart();
+  const btn = document.querySelector(`.abtn[data-id="${id}"]`);
+  if(btn){btn.textContent='✓ Added!';btn.classList.add('done');setTimeout(()=>{btn.textContent='Add to Cart';btn.classList.remove('done');},1800);}
+}
+function chQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];updateBadges();renderCart();}
+function rmItem(id){delete cart[id];updateBadges();renderCart();}
+function totalItems(){return Object.values(cart).reduce((a,b)=>a+b,0);}
+function totalPrice(){return Object.entries(cart).reduce((a,[id,q])=>a+PRODS[id].price*q,0);}
+function updateBadges(){const n=totalItems();document.getElementById('navBadge').textContent=n;document.getElementById('fabBadge').textContent=n;}
+
+function renderCart(){
+  const list=document.getElementById('cartList');
+  const empty=document.getElementById('cartEmpty');
+  const foot=document.getElementById('cartFoot');
+  const keys=Object.keys(cart);
+  if(!keys.length){empty.style.display='block';list.innerHTML='';foot.style.display='none';return;}
+  empty.style.display='none';foot.style.display='block';
+  document.getElementById('cartTotal').textContent='GH₵ '+totalPrice().toLocaleString();
+  list.innerHTML=keys.map(id=>{const p=PRODS[id],q=cart[id];return`<div class="ci"><div class="ci-img">${p.emoji}</div><div class="ci-info"><div class="ci-name">${p.name}</div><div class="ci-price">GH₵ ${(p.price*q).toLocaleString()}</div></div><div class="qty"><button class="qbtn" onclick="chQty(${id},-1)">−</button><span class="qnum">${q}</span><button class="qbtn" onclick="chQty(${id},1)">+</button></div><button class="rbtn" onclick="rmItem(${id})">✕</button></div>`;}).join('');
+}
+
+function openCart(){renderCart();document.getElementById('cartDrawer').classList.add('open');document.getElementById('cartOv').classList.add('open');document.body.style.overflow='hidden';}
+function closeCart(){document.getElementById('cartDrawer').classList.remove('open');document.getElementById('cartOv').classList.remove('open');document.body.style.overflow='';}
+
+// ── CHECKOUT ──
+function openCheckout(){
+  if(!totalItems())return;
+  closeCart();
+  step=1;delMode=null;
+  showPanel(1);
+  document.getElementById('coSuccess').style.display='none';
+  document.getElementById('coNav').style.display='flex';
+  document.getElementById('coModal').classList.add('open');
+  document.getElementById('coOv').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeCheckout(){document.getElementById('coModal').classList.remove('open');document.getElementById('coOv').classList.remove('open');document.body.style.overflow='';}
+
+function showPanel(s){
+  step=s;
+  ['p1','p2','p3'].forEach((id,i)=>document.getElementById(id).style.display=(i+1===s)?'block':'none');
+  ['sd1','sd2','sd3'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.remove('active','done');if(i+1===s)el.classList.add('active');else if(i+1<s)el.classList.add('done');});
+  ['sl1','sl2'].forEach((id,i)=>document.getElementById(id).classList.toggle('done',i+1<s));
+  document.getElementById('backBtn').style.display=s>1?'flex':'none';
+  document.getElementById('nextBtn').textContent=s===3?'✦ Place My Order':'Continue →';
+  if(s===3)buildSummary();
+}
+
+function goNext(){
+  if(step===1&&!val1())return;
+  if(step===2&&!val2())return;
+  if(step===3){placeOrder();return;}
+  showPanel(step+1);
+}
+function goBack(){if(step>1)showPanel(step-1);}
+
+function val1(){
+  const fn=document.getElementById('co_fn').value.trim();
+  const ln=document.getElementById('co_ln').value.trim();
+  const ph=document.getElementById('co_ph').value.trim();
+  if(!fn||!ln||!ph){alert('Please fill in your First Name, Last Name, and Phone Number to continue.');return false;}
+  return true;
+}
+function val2(){
+  if(!delMode){alert('Please choose Home Delivery or Studio Pickup to continue.');return false;}
+  if(delMode==='delivery'){
+    const a=document.getElementById('co_addr').value.trim();
+    const t=document.getElementById('co_town').value.trim();
+    const r=document.getElementById('co_reg').value;
+    if(!a||!t||!r){alert('Please complete your delivery address — street, town, and region are required.');return false;}
+  }
+  return true;
+}
+
+function selDel(mode){
+  delMode=mode;
+  document.getElementById('dc-del').classList.toggle('sel',mode==='delivery');
+  document.getElementById('dc-pick').classList.toggle('sel',mode==='pickup');
+  document.getElementById('delFields').style.display=mode==='delivery'?'block':'none';
+  document.getElementById('pickFields').style.display=mode==='pickup'?'block':'none';
+}
+
+function buildSummary(){
+  const fn=document.getElementById('co_fn').value.trim();
+  const ln=document.getElementById('co_ln').value.trim();
+  const ph=document.getElementById('co_ph').value.trim();
+  const em=document.getElementById('co_em').value.trim();
+  const meas=document.getElementById('co_meas').value.trim();
+  const notes=document.getElementById('co_notes').value.trim();
+  let h='';
+  // Items
+  h+=`<div class="srow stitle">🛍 Items Ordered</div>`;
+  Object.entries(cart).forEach(([id,q])=>{const p=PRODS[id];h+=`<div class="srow"><span>${p.emoji} ${p.name} × ${q}</span><span style="font-weight:600">GH₵ ${(p.price*q).toLocaleString()}</span></div>`;});
+  // Delivery
+  if(delMode==='delivery'){
+    const a=document.getElementById('co_addr').value.trim();
+    const t=document.getElementById('co_town').value.trim();
+    const r=document.getElementById('co_reg').value;
+    const lm=document.getElementById('co_lm').value.trim();
+    const dd=document.getElementById('co_ddate').value;
+    h+=`<div class="srow stitle" style="margin-top:.5rem">🚚 Home Delivery</div>`;
+    h+=`<div class="srow sdetail">${a}, ${t}, ${r}${lm?' (near '+lm+')':''}</div>`;
+    if(dd)h+=`<div class="srow sdetail">Preferred delivery date: ${dd}</div>`;
+    h+=`<div class="srow"><span>Delivery Fee</span><span style="color:var(--muted)">Confirmed via WhatsApp</span></div>`;
+  } else {
+    const pd=document.getElementById('co_pdate').value;
+    const pt=document.getElementById('co_ptime').value;
+    h+=`<div class="srow stitle" style="margin-top:.5rem">🏠 Studio Pickup — Kasoa</div>`;
+    h+=`<div class="srow"><span>Pickup Fee</span><span style="color:var(--sage);font-weight:600">Free</span></div>`;
+    if(pd)h+=`<div class="srow sdetail">Preferred: ${pd}${pt?', '+pt:''}</div>`;
+  }
+  // Customer
+  h+=`<div class="srow stitle" style="margin-top:.5rem">👤 Your Details</div>`;
+  h+=`<div class="srow"><span>${fn} ${ln}</span><span>${ph}</span></div>`;
+  if(em)h+=`<div class="srow sdetail">${em}</div>`;
+  if(meas)h+=`<div class="srow sdetail">Measurements: ${meas}</div>`;
+  if(notes)h+=`<div class="srow sdetail">Notes: "${notes}"</div>`;
+  // Total
+  h+=`<div class="srow stotal"><span>Items Total</span><span>GH₵ ${totalPrice().toLocaleString()}</span></div>`;
+  document.getElementById('sumBox').innerHTML=h;
+}
+
+function placeOrder(){
+  const fn=document.getElementById('co_fn').value.trim();
+  const ln=document.getElementById('co_ln').value.trim();
+  const ph=document.getElementById('co_ph').value.trim();
+  const em=document.getElementById('co_em').value.trim();
+  const meas=document.getElementById('co_meas').value.trim();
+  const notes=document.getElementById('co_notes').value.trim();
+  const items=Object.entries(cart).map(([id,q])=>{const p=PRODS[id];return`• ${p.emoji} ${p.name} × ${q} = GH₵ ${(p.price*q).toLocaleString()}`;}).join('\n');
+  let delText='';
+  if(delMode==='delivery'){
+    const a=document.getElementById('co_addr').value.trim();
+    const t=document.getElementById('co_town').value.trim();
+    const r=document.getElementById('co_reg').value;
+    const lm=document.getElementById('co_lm').value.trim();
+    const dd=document.getElementById('co_ddate').value;
+    delText=`🚚 *HOME DELIVERY*\nAddress: ${a}, ${t}, ${r}${lm?'\nNearby landmark: '+lm:''}${dd?'\nPreferred date: '+dd:''}`;
+  } else {
+    const pd=document.getElementById('co_pdate').value;
+    const pt=document.getElementById('co_ptime').value;
+    delText=`🏠 *STUDIO PICKUP — Kasoa (Free)*${pd?'\nPreferred date: '+pd:''}${pt?'\nPreferred time: '+pt:''}`;
+  }
+  const msg=`Hi Bherty Stitches! 🧶\n\n*New Order from ${fn} ${ln}*\n📱 ${ph}${em?'\n📧 '+em:''}\n\n*Items Ordered:*\n${items}\n\n*Items Total: GH₵ ${totalPrice().toLocaleString()}*\n\n${delText}${meas?'\n\n📏 Measurements: '+meas:''}${notes?'\n\n📝 Notes: '+notes:''}\n\nPlease confirm my order. Thank you! 😊`;
+  const waLink=`https://wa.me/message/UYA6ZRENI4P7O1?text=${encodeURIComponent(msg)}`;
+  // Show success
+  ['p1','p2','p3'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('coSuccess').style.display='block';
+  document.getElementById('coNav').style.display='none';
+  document.getElementById('waBtn').onclick=()=>window.open(waLink,'_blank');
+  // Clear cart
+  cart={};updateBadges();renderCart();
+}
+
+// ── CUSTOM ORDER SECTION ──
+function submitOrder(){
+  const fn=document.getElementById('firstName').value.trim();
+  const ln=document.getElementById('lastName').value.trim();
+  const ph=document.getElementById('phone').value.trim();
+  const st=document.getElementById('style').value;
+  const co=document.getElementById('colour').value.trim();
+  if(!fn||!ln||!ph||!st||!co){alert('Please fill in all required fields (marked with *) before submitting.');return;}
+  document.getElementById('smsg').style.display='block';
+  const btn=document.querySelector('.sbtn');btn.textContent='✓ Order Received!';btn.style.background='var(--sage)';
+  setTimeout(()=>{['firstName','lastName','phone','email','meas','details'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('style').value='';btn.textContent='✦ Submit My Order';btn.style.background='';document.getElementById('smsg').style.display='none';},4000);
+}
+
+// ── SMOOTH SCROLL ──
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)window.scrollTo({top:t.offsetTop-80,behavior:'smooth'});});});
+</script>
+</body>
+</html>

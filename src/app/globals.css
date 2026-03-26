@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --cream: #f5ede0;
+  --ww: #fdf8f3;
+  --terra: #c4623a;
+  --brown: #6b3d2e;
+  --dark: #2a1a14;
+  --muted: #9a7a6e;
+  --gold: #d4a843;
+  --sage: #8a9e7b;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ww);
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+/* Product card color classes */
+.c1 { background: linear-gradient(135deg, #f0e0d0, #e8c9b0); }
+.c2 { background: linear-gradient(135deg, #dde8d5, #c5d9b8); }
+.c3 { background: linear-gradient(135deg, #e8d5e0, #d4b8c8); }
+.c4 { background: linear-gradient(135deg, #e8e0cc, #d9cc9e); }
+.c5 { background: linear-gradient(135deg, #d5dde8, #b8c8d9); }
+.c6 { background: linear-gradient(135deg, #e8d5cc, #d9b4a5); }
+
+/* Float animation for hero card */
+@keyframes flt {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float { animation: flt 4s ease-in-out infinite; }
+
+/* Marquee */
+@keyframes mq {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: mq 22s linear infinite; }
+
+/* Smooth page transitions */
+* { box-sizing: border-box; }

@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: check if the requester is the admin
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+
+    // Products — public read of active items; admin full access
+    match /products/{productId} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Orders — anyone can create; admin can read/write all
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Custom requests — anyone can create; admin can read/write all
+    match /customRequests/{requestId} {
+      allow create: if
+        request.resource.data.keys().hasAll(['name', 'email', 'phone', 'description', 'budget', 'status', 'createdAt']) &&
+        request.resource.data.status == 'new';
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Block everything else
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
