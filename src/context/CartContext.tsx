@@ -5,6 +5,7 @@ import {
   useContext,
   useReducer,
   useEffect,
+  useState,
   ReactNode,
   Dispatch,
 } from 'react';
@@ -84,24 +85,33 @@ const STORAGE_KEY = 'bherty_cart';
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
+  // Gate: only write to localStorage after the initial hydration has completed.
+  // Without this, the save effect fires with [] on first render and wipes the
+  // stored cart before the hydrate dispatch can take effect.
+  const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount (runs once, before the save effect)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const items: CartItem[] = JSON.parse(raw);
-        dispatch({ type: 'HYDRATE', items });
+        if (Array.isArray(items) && items.length > 0) {
+          dispatch({ type: 'HYDRATE', items });
+        }
       }
     } catch {
       // ignore malformed storage
     }
+    setHydrated(true);
   }, []);
 
-  // Persist to localStorage on every state change
+  // Persist to localStorage — only after hydration is complete so we never
+  // overwrite a stored cart with the empty initial state.
   useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
-  }, [state.items]);
+  }, [state.items, hydrated]);
 
   const totalItems = state.items.reduce((sum, i) => sum + i.qty, 0);
   const totalPrice = state.items.reduce((sum, i) => sum + i.product.price * i.qty, 0);
