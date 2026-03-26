@@ -14,7 +14,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
       router.replace('/admin');
@@ -38,50 +37,63 @@ export default function AdminLoginPage() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-ww flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
+
+        {/* Brand mark */}
         <div className="text-center mb-8">
-          <span className="text-5xl block mb-3">🧶</span>
-          <h1 className="font-playfair text-3xl text-dark">Bherty <span className="text-terra italic">Admin</span></h1>
-          <p className="text-muted text-sm mt-1">Sign in to manage your store</p>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-terra text-white font-playfair font-bold text-2xl mb-4 shadow-lg shadow-terra/20">
+            B
+          </div>
+          <h1 className="font-playfair text-2xl text-dark">
+            Bherty <span className="text-terra italic">Admin</span>
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">Sign in to manage your store</p>
         </div>
 
-        <form onSubmit={handleLogin} className="bg-cream p-8 shadow-lg flex flex-col gap-5">
-          <div>
-            <label className="block text-xs text-muted uppercase tracking-wider mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
-              required
-              className="w-full border border-muted/30 px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-muted uppercase tracking-wider mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="w-full border border-muted/30 px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra"
-            />
-          </div>
+        {/* Form card */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                required
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10 transition-all"
+              />
+            </div>
 
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 px-3 py-2">{error}</p>
-          )}
+            {error && (
+              <div className="flex items-start gap-2.5 text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2.5 rounded-lg">
+                <span className="text-red-400 flex-shrink-0 mt-0.5">⚠</span>
+                {error}
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-terra text-white py-3 text-sm font-semibold uppercase tracking-widest hover:bg-brown transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {submitting ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-terra text-white py-2.5 text-sm font-medium rounded-lg hover:bg-brown transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+            >
+              {submitting ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   );
