@@ -433,27 +433,6 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Pricing */}
-              <div className="bg-cream rounded-2xl p-6 border border-terra/8">
-                <h4 className="font-playfair text-lg text-dark mb-4">Pricing Guide</h4>
-                <div className="space-y-2.5">
-                  {[
-                    ['Mini Dresses', 250],
-                    ['Midi Dresses', 350],
-                    ['Maxi Dresses', 450],
-                  ].map(([name, price]) => (
-                    <div key={name as string} className="flex items-center justify-between">
-                      <span className="text-sm text-dark/70">{name as string}</span>
-                      <span className="text-sm font-semibold text-terra">from {formatCedi(price as number)}</span>
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-muted/15">
-                    <span className="text-sm text-dark/70">Rush orders (under 3 days)</span>
-                    <span className="text-sm font-semibold text-terra">+ {formatCedi(100)}</span>
-                  </div>
-                </div>
-                <p className="text-[11px] text-muted italic mt-3">Final price depends on complexity and yarn type.</p>
-              </div>
             </div>
 
             {/* Order form */}
