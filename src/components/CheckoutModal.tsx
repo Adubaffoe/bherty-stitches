@@ -5,9 +5,10 @@ import { useCart } from '@/context/CartContext';
 import { formatCedi } from '@/lib/formatCedi';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { fetchSettings, StoreSettings, DEFAULT_SETTINGS } from '@/lib/settings';
 
 type DeliveryMode = 'delivery' | 'pickup' | null;
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 interface ContactInfo {
   firstName: string;
@@ -28,6 +29,13 @@ interface DeliveryInfo {
   pickupTime: string;
 }
 
+interface PaymentInfo {
+  momoName: string;
+  momoNumber: string;
+  transactionId: string;
+  amountPaid: string;
+}
+
 const REGIONS = [
   'Greater Accra','Ashanti','Central','Western','Eastern','Volta',
   'Northern','Upper East','Upper West','Brong-Ahafo','Oti','Savannah',
@@ -45,6 +53,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const [delMode, setDelMode] = useState<DeliveryMode>(null);
   const [success, setSuccess] = useState(false);
   const [waLink, setWaLink] = useState('');
+  const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
 
   const [contact, setContact] = useState<ContactInfo>({
     firstName: '', lastName: '', phone: '', email: '', measurements: '', notes: '',
@@ -52,16 +61,24 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const [delivery, setDelivery] = useState<DeliveryInfo>({
     address: '', town: '', region: '', landmark: '', deliveryDate: '', pickupDate: '', pickupTime: '',
   });
+  const [payment, setPayment] = useState<PaymentInfo>({
+    momoName: '', momoNumber: '', transactionId: '', amountPaid: '',
+  });
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
+  useEffect(() => {
+    if (open) fetchSettings().then(setSettings);
+  }, [open]);
+
   function reset() {
     setStep(1); setDelMode(null); setSuccess(false); setWaLink('');
     setContact({ firstName: '', lastName: '', phone: '', email: '', measurements: '', notes: '' });
     setDelivery({ address: '', town: '', region: '', landmark: '', deliveryDate: '', pickupDate: '', pickupTime: '' });
+    setPayment({ momoName: '', momoNumber: '', transactionId: '', amountPaid: '' });
   }
 
   function handleClose() { reset(); onClose(); }
@@ -86,6 +103,14 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
     return true;
   }
 
+  function validateStep3() {
+    if (!payment.momoName || !payment.momoNumber || !payment.transactionId) {
+      alert('Please enter your MoMo name, number, and transaction ID to continue.');
+      return false;
+    }
+    return true;
+  }
+
   async function placeOrder() {
     const items = state.items.map((i) =>
       `• ${i.product.emoji} ${i.product.name} × ${i.qty} = ${formatCedi(i.product.price * i.qty)}`
@@ -93,12 +118,14 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
     let delText = '';
     if (delMode === 'delivery') {
-      delText = `🚚 *HOME DELIVERY*\nAddress: ${delivery.address}, ${delivery.town}, ${delivery.region}${delivery.landmark ? '\nNearby landmark: ' + delivery.landmark : ''}${delivery.deliveryDate ? '\nPreferred date: ' + delivery.deliveryDate : ''}`;
+      delText = `🚚 *HOME DELIVERY${totalPrice >= 1000 ? ' (FREE)' : ''}*\nAddress: ${delivery.address}, ${delivery.town}, ${delivery.region}${delivery.landmark ? '\nNearby landmark: ' + delivery.landmark : ''}${delivery.deliveryDate ? '\nPreferred date: ' + delivery.deliveryDate : ''}`;
     } else {
-      delText = `🏠 *STUDIO PICKUP — Kasoa (Free)*${delivery.pickupDate ? '\nPreferred date: ' + delivery.pickupDate : ''}${delivery.pickupTime ? '\nPreferred time: ' + delivery.pickupTime : ''}`;
+      delText = `🏠 *STUDIO PICKUP — ${settings.storeLocation} (Free)*${delivery.pickupDate ? '\nPreferred date: ' + delivery.pickupDate : ''}${delivery.pickupTime ? '\nPreferred time: ' + delivery.pickupTime : ''}`;
     }
 
-    const msg = `Hi Bherty Stitches! 🧶\n\n*New Order from ${contact.firstName} ${contact.lastName}*\n📱 ${contact.phone}${contact.email ? '\n📧 ' + contact.email : ''}\n\n*Items Ordered:*\n${items}\n\n*Items Total: ${formatCedi(totalPrice)}*\n\n${delText}${contact.measurements ? '\n\n📏 Measurements: ' + contact.measurements : ''}${contact.notes ? '\n\n📝 Notes: ' + contact.notes : ''}\n\nPlease confirm my order. Thank you! 😊`;
+    const payText = `\n\n💳 *PAYMENT*\nMoMo Name: ${payment.momoName}\nMoMo Number: ${payment.momoNumber}\nTransaction ID: ${payment.transactionId}${payment.amountPaid ? '\nAmount Paid: GH₵ ' + payment.amountPaid : ''}`;
+
+    const msg = `Hi Bherty Stitches! 🧶\n\n*New Order from ${contact.firstName} ${contact.lastName}*\n📱 ${contact.phone}${contact.email ? '\n📧 ' + contact.email : ''}\n\n*Items Ordered:*\n${items}\n\n*Items Total: ${formatCedi(totalPrice)}*\n\n${delText}${payText}${contact.measurements ? '\n\n📏 Measurements: ' + contact.measurements : ''}${contact.notes ? '\n\n📝 Notes: ' + contact.notes : ''}\n\nPlease confirm my order. Thank you! 😊`;
 
     // Save to Firestore
     try {
@@ -126,6 +153,13 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           preferredDate: delivery.pickupDate || null,
           preferredTime: delivery.pickupTime || null,
         },
+        paymentMethod: 'Mobile Money',
+        paymentAccountNameShown: settings.mobileMoneyName,
+        paymentAccountNumberShown: settings.mobileMoneyNumber,
+        customerMobileMoneyName: payment.momoName,
+        customerMobileMoneyNumber: payment.momoNumber,
+        transactionId: payment.transactionId,
+        amountPaid: payment.amountPaid ? parseFloat(payment.amountPaid) : null,
         status: 'new',
         createdAt: serverTimestamp(),
       });
@@ -141,7 +175,8 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   function goNext() {
     if (step === 1 && !validateStep1()) return;
     if (step === 2 && !validateStep2()) return;
-    if (step === 3) { placeOrder(); return; }
+    if (step === 3 && !validateStep3()) return;
+    if (step === 4) { placeOrder(); return; }
     setStep((s) => (s + 1) as Step);
   }
 
@@ -150,6 +185,8 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   }
 
   if (!open) return null;
+
+  const stepLabels = ['Your Info', 'Delivery', 'Payment', 'Review'];
 
   return (
     <>
@@ -166,20 +203,20 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           </div>
           {/* Step bar */}
           {!success && (
-            <div className="flex items-center gap-2">
-              {([1, 2, 3] as Step[]).map((s, i) => (
-                <div key={s} className="flex items-center gap-2 flex-1">
+            <div className="flex items-center gap-1">
+              {([1, 2, 3, 4] as Step[]).map((s, i) => (
+                <div key={s} className="flex items-center gap-1 flex-1">
                   <div className="flex flex-col items-center">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${
                       step === s ? 'bg-terra border-terra text-white' :
                       step > s ? 'bg-brown border-brown text-white' :
                       'bg-transparent border-muted text-muted'
                     }`}>{s}</div>
-                    <span className="text-[10px] text-muted mt-0.5 uppercase tracking-wide">
-                      {['Your Info', 'Delivery', 'Review'][i]}
+                    <span className="text-[9px] text-muted mt-0.5 uppercase tracking-wide whitespace-nowrap">
+                      {stepLabels[i]}
                     </span>
                   </div>
-                  {i < 2 && <div className={`flex-1 h-[2px] transition-colors ${step > s ? 'bg-brown' : 'bg-cream'}`} />}
+                  {i < 3 && <div className={`flex-1 h-[2px] transition-colors mb-3 ${step > s ? 'bg-brown' : 'bg-cream'}`} />}
                 </div>
               ))}
             </div>
@@ -193,7 +230,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               <div className="text-5xl mb-4">🎉</div>
               <h3 className="font-playfair text-2xl text-dark mb-2">Order Placed!</h3>
               <p className="text-muted font-cormorant text-base mb-6">
-                Click below to send your order details to us on WhatsApp. We'll confirm and share payment info shortly.
+                Click below to send your order details to us on WhatsApp. We'll confirm your order shortly.
               </p>
               <a
                 href={waLink}
@@ -221,14 +258,14 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
             <div className="flex flex-col gap-4">
               <p className="text-xs uppercase tracking-widest text-terra font-semibold">How Would You Like to Receive Your Order?</p>
               <div className="grid grid-cols-2 gap-3">
-                <DeliveryCard icon="🚚" title="Home Delivery" sub="We bring it to your door. Fee confirmed via WhatsApp." selected={delMode === 'delivery'} onClick={() => setDelMode('delivery')} />
-                <DeliveryCard icon="🏠" title="Studio Pickup" sub="Collect from our studio in Kasoa. Completely free." selected={delMode === 'pickup'} onClick={() => setDelMode('pickup')} />
+                <DeliveryCard icon="🚚" title="Home Delivery" sub={totalPrice >= 1000 ? "Free delivery on your order!" : "We bring it to your door. Fee confirmed via WhatsApp."} selected={delMode === 'delivery'} onClick={() => setDelMode('delivery')} />
+                <DeliveryCard icon="🏠" title="Studio Pickup" sub={`Collect from our studio in ${settings.storeLocation}. Completely free.`} selected={delMode === 'pickup'} onClick={() => setDelMode('pickup')} />
               </div>
               {delMode === 'delivery' && (
                 <div className="flex flex-col gap-3 mt-1">
                   <Field label="Street / House Address *" value={delivery.address} onChange={(v) => setDelivery({ ...delivery, address: v })} placeholder="House No. 12, Sunrise Road" />
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Town / Area *" value={delivery.town} onChange={(v) => setDelivery({ ...delivery, town: v })} placeholder="Kasoa" />
+                    <Field label="Town / Area *" value={delivery.town} onChange={(v) => setDelivery({ ...delivery, town: v })} placeholder="Dansoman" />
                     <div>
                       <label className="block text-xs text-muted uppercase tracking-wider mb-1">Region *</label>
                       <select className="w-full border border-muted/30 px-3 py-2 text-sm text-dark bg-white focus:outline-none focus:border-terra" value={delivery.region} onChange={(e) => setDelivery({ ...delivery, region: e.target.value })}>
@@ -245,7 +282,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 <div className="flex flex-col gap-3 mt-1">
                   <div className="bg-cream p-4 text-sm text-dark">
                     <strong>📍 Studio Location</strong>
-                    <p className="mt-1 text-muted font-cormorant text-base">Bherty Stitches Studio, Kasoa, Central Region.<br />We'll send exact directions via WhatsApp once confirmed.</p>
+                    <p className="mt-1 text-muted font-cormorant text-base">{settings.storeLocation}.<br />We'll send exact directions via WhatsApp once confirmed.</p>
                   </div>
                   <Field label="Preferred Pickup Date (optional)" type="date" value={delivery.pickupDate} onChange={(v) => setDelivery({ ...delivery, pickupDate: v })} />
                   <div>
@@ -260,8 +297,43 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 </div>
               )}
             </div>
+          ) : step === 3 ? (
+            // Step 3: Payment
+            <div className="flex flex-col gap-4">
+              <p className="text-xs uppercase tracking-widest text-terra font-semibold">Mobile Money Payment</p>
+              <p className="text-sm text-muted font-cormorant text-base leading-relaxed">{settings.paymentInstructions}</p>
+
+              {/* Payment details card */}
+              <div className="bg-terra/5 border border-terra/20 p-4">
+                <p className="text-xs uppercase tracking-widest text-terra font-semibold mb-3">Send Payment To</p>
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted uppercase tracking-wider">Network</span>
+                    <span className="font-semibold text-sm text-dark">{settings.provider}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted uppercase tracking-wider">Number</span>
+                    <span className="font-bold text-lg text-terra tracking-wider">{settings.mobileMoneyNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted uppercase tracking-wider">Name</span>
+                    <span className="font-semibold text-sm text-dark">{settings.mobileMoneyName}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-terra/10 pt-2 mt-1">
+                    <span className="text-xs text-muted uppercase tracking-wider">Amount</span>
+                    <span className="font-bold text-terra">{formatCedi(totalPrice)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs uppercase tracking-widest text-terra font-semibold mt-1">Your Payment Details *</p>
+              <Field label="Your MoMo Name *" value={payment.momoName} onChange={(v) => setPayment({ ...payment, momoName: v })} placeholder="Name on your MoMo account" />
+              <Field label="Your MoMo Number *" type="tel" value={payment.momoNumber} onChange={(v) => setPayment({ ...payment, momoNumber: v })} placeholder="0XX XXX XXXX" />
+              <Field label="Transaction ID *" value={payment.transactionId} onChange={(v) => setPayment({ ...payment, transactionId: v })} placeholder="e.g. A12345678B" />
+              <Field label="Amount Paid (optional)" type="number" value={payment.amountPaid} onChange={(v) => setPayment({ ...payment, amountPaid: v })} placeholder={`${totalPrice}`} />
+            </div>
           ) : (
-            // Step 3: Review
+            // Step 4: Review
             <div className="flex flex-col gap-3">
               <p className="text-xs uppercase tracking-widest text-terra font-semibold">Review & Confirm Your Order</p>
               <div className="bg-cream p-4 flex flex-col gap-2 text-sm">
@@ -278,14 +350,17 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 </div>
                 <div className="border-t border-muted/20 pt-2 mt-1">
                   <p className="font-semibold text-muted uppercase tracking-wider text-xs mb-1">
-                    {delMode === 'delivery' ? '🚚 Home Delivery' : '🏠 Studio Pickup — Kasoa'}
+                    {delMode === 'delivery' ? '🚚 Home Delivery' : `🏠 Studio Pickup — ${settings.storeLocation}`}
                   </p>
                   {delMode === 'delivery' ? (
                     <>
                       <p>{delivery.address}, {delivery.town}, {delivery.region}</p>
                       {delivery.landmark && <p className="text-muted">Near: {delivery.landmark}</p>}
                       {delivery.deliveryDate && <p className="text-muted">Preferred: {delivery.deliveryDate}</p>}
-                      <p className="text-muted mt-1">Delivery fee confirmed via WhatsApp</p>
+                      {totalPrice >= 1000
+                        ? <p className="text-sage font-semibold mt-1">Free delivery</p>
+                        : <p className="text-muted mt-1">Delivery fee confirmed via WhatsApp</p>
+                      }
                     </>
                   ) : (
                     <>
@@ -295,6 +370,11 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                   )}
                 </div>
                 <div className="border-t border-muted/20 pt-2 mt-1">
+                  <p className="font-semibold text-muted uppercase tracking-wider text-xs mb-1">💳 Payment</p>
+                  <p>MoMo: {payment.momoName} · {payment.momoNumber}</p>
+                  <p className="text-muted">Transaction ID: {payment.transactionId}</p>
+                </div>
+                <div className="border-t border-muted/20 pt-2 mt-1">
                   <p className="font-semibold text-muted uppercase tracking-wider text-xs mb-1">👤 Your Details</p>
                   <p>{contact.firstName} {contact.lastName} · {contact.phone}</p>
                   {contact.email && <p className="text-muted">{contact.email}</p>}
@@ -302,7 +382,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                   {contact.notes && <p className="text-muted">Notes: &ldquo;{contact.notes}&rdquo;</p>}
                 </div>
               </div>
-              <p className="text-xs text-muted leading-relaxed">By placing your order, your details will be sent to our WhatsApp. We'll confirm and share payment info. 🧶</p>
+              <p className="text-xs text-muted leading-relaxed">By placing your order, your details will be sent to our WhatsApp for confirmation. 🧶</p>
             </div>
           )}
         </div>
@@ -320,7 +400,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               onClick={goNext}
               className="bg-terra text-white px-6 py-2.5 text-sm font-semibold uppercase tracking-wider hover:bg-brown transition-colors"
             >
-              {step === 3 ? '✦ Place My Order' : 'Continue →'}
+              {step === 4 ? '✦ Place My Order' : 'Continue →'}
             </button>
           </div>
         )}

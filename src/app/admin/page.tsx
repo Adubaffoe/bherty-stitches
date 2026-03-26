@@ -65,6 +65,7 @@ export default function AdminDashboard() {
           <h1 className="font-playfair text-xl">Bherty <span className="text-terra italic">Admin</span></h1>
           <div className="flex items-center gap-6">
             <Link href="/admin/products" className="text-sm text-cream/70 hover:text-cream transition-colors">Products</Link>
+            <Link href="/admin/settings" className="text-sm text-cream/70 hover:text-cream transition-colors">Settings</Link>
             <Link href="/" className="text-sm text-cream/70 hover:text-cream transition-colors">View Site</Link>
             <button onClick={handleSignOut} className="text-sm bg-terra text-white px-4 py-1.5 hover:bg-brown transition-colors">Sign Out</button>
           </div>
@@ -144,12 +145,18 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-10 flex gap-4">
             <Link
               href="/admin/products"
               className="inline-block bg-terra text-white px-8 py-3 text-sm font-semibold uppercase tracking-widest hover:bg-brown transition-colors"
             >
               Manage Products →
+            </Link>
+            <Link
+              href="/admin/settings"
+              className="inline-block border border-terra text-terra px-8 py-3 text-sm font-semibold uppercase tracking-widest hover:bg-terra hover:text-white transition-colors"
+            >
+              ⚙ Settings
             </Link>
           </div>
         </main>

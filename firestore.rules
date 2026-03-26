@@ -27,6 +27,12 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Settings — public read; admin-only write
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Block everything else
     match /{document=**} {
       allow read, write: if isAdmin();

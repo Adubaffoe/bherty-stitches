@@ -362,7 +362,7 @@ export default function HomePage() {
           <div>
             <h4 className="text-xs uppercase tracking-widest font-semibold mb-4 text-gold">Get in Touch</h4>
             <div className="flex flex-col gap-2 text-sm text-cream/70">
-              <p>📍 Kasoa, Ghana</p>
+              <p>📍 Prime Apartment and Hotel, Dansoman, Accra</p>
               <p>💬 <a href="https://wa.me/message/UYA6ZRENI4P7O1" target="_blank" rel="noopener noreferrer" className="hover:text-cream transition-colors">WhatsApp Us</a></p>
               <p>📧 <a href="mailto:quansahbetty@gmail.com" className="hover:text-cream transition-colors">quansahbetty@gmail.com</a></p>
               <p className="mt-1">Mon – Sat: 8am – 6pm</p>

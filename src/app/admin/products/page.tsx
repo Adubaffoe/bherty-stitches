@@ -161,6 +161,7 @@ export default function AdminProductsPage() {
         <nav className="bg-dark text-cream px-8 py-4 flex items-center justify-between">
           <Link href="/admin" className="font-playfair text-xl">Bherty <span className="text-terra italic">Admin</span></Link>
           <div className="flex items-center gap-6">
+            <Link href="/admin/settings" className="text-sm text-cream/70 hover:text-cream transition-colors">Settings</Link>
             <Link href="/" className="text-sm text-cream/70 hover:text-cream transition-colors">View Site</Link>
             <button onClick={handleSignOut} className="text-sm bg-terra text-white px-4 py-1.5 hover:bg-brown transition-colors">Sign Out</button>
           </div>
