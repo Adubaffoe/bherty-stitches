@@ -4,7 +4,7 @@ service cloud.firestore {
 
     // Helper: check if the requester is the admin
     function isAdmin() {
-      return request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID';
+      return request.auth != null && request.auth.uid == 'DBlOD4Xr4Xc59ZHmhtNNsUbNu9p2';
     }
 
     // Products — public read of active items; admin full access
