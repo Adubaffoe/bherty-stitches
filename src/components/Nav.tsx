@@ -21,124 +21,160 @@ export default function Nav({ onCartOpen }: NavProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10);
+    const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handler, { passive: true });
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
-  // Lock body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [drawerOpen]);
 
-  function closeDrawer() {
-    setDrawerOpen(false);
-  }
+  function closeDrawer() { setDrawerOpen(false); }
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 transition-shadow duration-300 ${
-          scrolled ? 'shadow-md' : ''
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 lg:px-20 h-[72px] transition-all duration-300 ${
+          scrolled ? 'shadow-[0_1px_24px_rgba(42,26,20,0.08)]' : ''
         }`}
-        style={{ background: 'rgba(253,248,243,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(196,98,58,0.15)' }}
+        style={{
+          background: scrolled
+            ? 'rgba(253,248,243,0.97)'
+            : 'rgba(253,248,243,0.92)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(196,98,58,0.10)',
+        }}
       >
         {/* Logo */}
-        <Link href="/" className="font-playfair text-2xl text-brown">
+        <Link href="/" className="font-playfair text-[1.35rem] text-brown leading-none tracking-tight hover:text-terra transition-colors">
           Bherty <span className="text-terra italic">Stitches</span>
         </Link>
 
         {/* Desktop links */}
-        <ul className="hidden md:flex gap-8 list-none">
+        <ul className="hidden md:flex items-center gap-10 list-none">
           {NAV_LINKS.map((l) => (
             <li key={l.href}>
-              <a
-                href={l.href}
-                className="text-xs font-medium uppercase tracking-widest text-brown hover:text-terra transition-colors"
-              >
+              <a href={l.href} className="nav-link text-[11px] font-medium uppercase tracking-[0.18em] text-brown/80 hover:text-terra transition-colors">
                 {l.label}
               </a>
             </li>
           ))}
         </ul>
 
-        {/* Desktop cart + hamburger */}
+        {/* Right: cart + hamburger */}
         <div className="flex items-center gap-3">
+          {/* Cart button */}
           <button
             onClick={onCartOpen}
-            className="flex items-center gap-2 bg-terra text-white px-4 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-brown transition-colors"
+            className="hidden md:flex items-center gap-2.5 bg-terra text-white text-[11px] font-semibold uppercase tracking-[0.16em] px-5 py-2.5 rounded-full hover:bg-brown transition-all duration-200 hover:shadow-md hover:-translate-y-px"
           >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
             Cart
             {totalItems > 0 && (
-              <span className="bg-gold text-white w-[18px] h-[18px] rounded-full text-[10px] font-bold inline-flex items-center justify-center">
+              <span className="bg-white/25 text-white w-5 h-5 rounded-full text-[10px] font-bold inline-flex items-center justify-center leading-none">
                 {totalItems}
               </span>
             )}
           </button>
 
-          {/* Hamburger — mobile only */}
+          {/* Mobile cart icon */}
           <button
-            className="md:hidden flex flex-col gap-[5px] p-1"
+            onClick={onCartOpen}
+            className="md:hidden relative p-2 text-brown hover:text-terra transition-colors"
+            aria-label="Open cart"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            {totalItems > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-terra text-white w-4 h-4 rounded-full text-[9px] font-bold inline-flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
+          </button>
+
+          {/* Hamburger */}
+          <button
+            className="md:hidden flex flex-col gap-[5px] p-1.5 ml-0.5"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
           >
-            <span className="block w-6 h-[2px] bg-brown" />
-            <span className="block w-6 h-[2px] bg-brown" />
-            <span className="block w-6 h-[2px] bg-brown" />
+            <span className="block w-5 h-[1.5px] bg-brown" />
+            <span className="block w-5 h-[1.5px] bg-brown" />
+            <span className="block w-3.5 h-[1.5px] bg-brown self-end" />
           </button>
         </div>
       </nav>
 
-      {/* Mobile drawer backdrop */}
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-dark/50 md:hidden"
-          onClick={closeDrawer}
-        />
-      )}
-
-      {/* Mobile slide-in drawer */}
+      {/* Mobile backdrop */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 z-50 bg-ww shadow-2xl flex flex-col transition-transform duration-300 md:hidden ${
+        onClick={closeDrawer}
+        className={`fixed inset-0 z-50 bg-dark/40 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+          drawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+
+      {/* Mobile slide-in menu */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[300px] z-50 flex flex-col transition-transform duration-300 ease-out md:hidden ${
           drawerOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
+        style={{ background: 'var(--ww)' }}
       >
-        <div className="flex items-center justify-between px-6 py-5 border-b border-terra/10">
-          <span className="font-playfair text-xl text-brown">
+        {/* Menu header */}
+        <div className="flex items-center justify-between px-7 h-[72px] border-b border-terra/10">
+          <span className="font-playfair text-lg text-brown leading-none">
             Bherty <span className="text-terra italic">Stitches</span>
           </span>
           <button
             onClick={closeDrawer}
             aria-label="Close menu"
-            className="text-muted hover:text-terra text-xl font-bold"
+            className="w-8 h-8 flex items-center justify-center text-muted hover:text-terra transition-colors rounded-full hover:bg-terra/5"
           >
-            ✕
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
           </button>
         </div>
 
-        <ul className="flex flex-col gap-1 p-6 list-none flex-1">
-          {NAV_LINKS.map((l) => (
-            <li key={l.href}>
+        {/* Menu links */}
+        <ul className="flex flex-col px-7 pt-6 list-none flex-1">
+          {NAV_LINKS.map((l, i) => (
+            <li key={l.href} style={{ animationDelay: `${i * 60}ms` }}>
               <a
                 href={l.href}
                 onClick={closeDrawer}
-                className="block py-3 text-sm font-medium uppercase tracking-widest text-brown hover:text-terra border-b border-cream transition-colors"
+                className="flex items-center justify-between py-4 text-sm font-medium text-brown hover:text-terra border-b border-cream/80 transition-colors group"
               >
-                {l.label}
+                <span className="uppercase tracking-[0.18em] text-xs">{l.label}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-30 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
               </a>
             </li>
           ))}
         </ul>
 
-        <div className="p-6">
+        {/* Mobile cart CTA */}
+        <div className="p-7 pb-10">
           <button
             onClick={() => { closeDrawer(); onCartOpen(); }}
-            className="w-full bg-terra text-white py-3 text-sm font-semibold uppercase tracking-wider hover:bg-brown transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-terra text-white py-3.5 text-xs font-semibold uppercase tracking-[0.18em] rounded-full hover:bg-brown transition-colors flex items-center justify-center gap-2.5"
           >
-            🛒 Cart
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            View Cart
             {totalItems > 0 && (
-              <span className="bg-gold text-white w-5 h-5 rounded-full text-xs font-bold inline-flex items-center justify-center">
+              <span className="bg-white/25 text-white w-5 h-5 rounded-full text-[10px] font-bold inline-flex items-center justify-center">
                 {totalItems}
               </span>
             )}

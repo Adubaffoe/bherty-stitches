@@ -11,25 +11,51 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
-const MARQUEE_TEXT = Array(4).fill(
-  '✦ Handcrafted with Love  ✦ Made to Order  ✦ Kasoa, Ghana  ✦ Crochet Couture  ✦ Wearable Art'
-).join('   ');
+/* ── Marquee content ─────────────────────────────────────────── */
+const MARQUEE_ITEMS = [
+  'Handcrafted with Love',
+  'Made to Order',
+  'Dansoman, Accra',
+  'Crochet Couture',
+  'Wearable Art',
+  'Bespoke Dresses',
+  'Ghana Made',
+];
 
+/* ── Testimonials ────────────────────────────────────────────── */
 const TESTIMONIALS = [
-  { name: 'Abena K.', loc: 'Accra, Ghana', avatar: '👩🏾', text: 'I ordered a custom maxi dress for my birthday and it was absolutely stunning. Everyone kept asking where I got it. Bherty Stitches is everything!' },
-  { name: 'Efua T.', loc: 'Kumasi, Ghana', avatar: '👩🏽', text: 'The quality is incredible — so much detail in every stitch. My dress arrived perfectly packaged and fit like a dream. I\'m already planning my next order!' },
-  { name: 'Adwoa M.', loc: 'Takoradi, Ghana', avatar: '👩🏿', text: 'Fast delivery, beautiful craftsmanship, and the seller was so communicative. This is true artistry. I\'ve recommended Bherty Stitches to all my friends!' },
+  { name: 'Abena K.', loc: 'Accra', text: 'I ordered a custom maxi dress for my birthday and it was absolutely stunning. Everyone kept asking where I got it. Bherty Stitches is everything!' },
+  { name: 'Efua T.', loc: 'Kumasi', text: 'The quality is incredible — so much detail in every stitch. My dress arrived perfectly packaged and fit like a dream. Already planning my next order!' },
+  { name: 'Adwoa M.', loc: 'Takoradi', text: 'Fast delivery, beautiful craftsmanship, and the seller was so communicative. This is true artistry. I\'ve recommended Bherty Stitches to all my friends!' },
 ];
 
 const STYLES = ['Mini Dress', 'Midi Dress', 'Maxi Dress', 'Custom'];
 
+/* ── Shared form field ───────────────────────────────────────── */
+function FormField({ label, value, onChange, placeholder, type = 'text' }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-muted mb-1.5">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full border border-muted/25 rounded-lg px-4 py-3 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/8 transition-all placeholder:text-muted/40"
+      />
+    </div>
+  );
+}
+
+/* ── Page ────────────────────────────────────────────────────── */
 export default function HomePage() {
   const { dispatch } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  // Custom order form state
   const [orderForm, setOrderForm] = useState({
     firstName: '', lastName: '', phone: '', email: '',
     style: '', colour: '', measurements: '', description: '',
@@ -74,98 +100,219 @@ export default function HomePage() {
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} onCheckout={() => setCheckoutOpen(true)} />
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
 
-      {/* ── HERO ───────────────────────────────────────────────── */}
-      <section id="home" className="min-h-screen grid md:grid-cols-2 pt-20 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 80% at 70% 50%,rgba(196,98,58,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 20% 80%,rgba(212,168,67,.06) 0%,transparent 60%)' }} />
+      {/* ══════════════════════════════════════════════════════════
+          HERO
+      ══════════════════════════════════════════════════════════ */}
+      <section
+        id="home"
+        className="min-h-screen grid md:grid-cols-2 pt-[72px] relative overflow-hidden"
+      >
+        {/* Background gradient */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: [
+              'radial-gradient(ellipse 70% 90% at 80% 40%, rgba(196,98,58,0.06) 0%, transparent 65%)',
+              'radial-gradient(ellipse 50% 70% at 10% 80%, rgba(212,168,67,0.05) 0%, transparent 60%)',
+              'radial-gradient(ellipse 40% 50% at 50% 0%, rgba(138,158,123,0.04) 0%, transparent 60%)',
+            ].join(','),
+          }}
+        />
 
-        {/* Left */}
-        <div className="flex flex-col justify-center px-8 md:px-16 lg:px-24 py-16 z-10">
-          <div className="flex items-center gap-3 text-terra text-xs font-semibold uppercase tracking-[0.25em] mb-6">
-            <span className="block w-9 h-px bg-terra" />
-            Handcrafted in Ghana
+        {/* ── Left copy ── */}
+        <div className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16 z-10">
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3 mb-7">
+            <span className="block w-8 h-px bg-terra/60" />
+            <span className="text-terra text-[10px] font-semibold uppercase tracking-[0.28em]">Handcrafted in Ghana</span>
           </div>
-          <h1 className="font-playfair text-5xl md:text-6xl lg:text-7xl leading-tight text-dark mb-6">
-            Wearable <em className="text-terra not-italic">Art</em>,<br />Crafted for <em className="text-terra not-italic">You</em>
+
+          {/* Heading */}
+          <h1 className="font-playfair text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.08] text-dark mb-6">
+            Wearable<br />
+            <em className="text-terra not-italic">Art</em>, Crafted<br />
+            for <em className="text-terra not-italic">You</em>
           </h1>
-          <p className="font-cormorant text-xl text-muted leading-relaxed max-w-md mb-10">
-            Each piece is lovingly handcrafted to celebrate your unique beauty. Discover our collection of bespoke crochet dresses.
+
+          {/* Subhead */}
+          <p className="font-cormorant text-[1.25rem] text-muted leading-relaxed max-w-[380px] mb-10 italic">
+            Each piece is lovingly handcrafted to celebrate your unique beauty — bespoke crochet dresses made to order.
           </p>
-          <div className="flex gap-4 flex-wrap">
-            <a href="#shop" className="bg-terra text-white px-8 py-4 text-sm font-semibold uppercase tracking-widest hover:bg-brown transition-all hover:-translate-y-0.5 hover:shadow-lg">
+
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-3">
+            <a
+              href="#shop"
+              className="inline-flex items-center gap-2.5 bg-terra text-white text-[11px] font-semibold uppercase tracking-[0.18em] px-7 py-3.5 rounded-full hover:bg-brown transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            >
               Shop Collection
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
             </a>
-            <a href="#order" className="border-2 border-brown text-brown px-8 py-4 text-sm font-semibold uppercase tracking-widest hover:bg-brown hover:text-white transition-all">
+            <a
+              href="#order"
+              className="inline-flex items-center gap-2.5 border border-brown/40 text-brown text-[11px] font-semibold uppercase tracking-[0.18em] px-7 py-3.5 rounded-full hover:bg-brown hover:text-white hover:border-brown transition-all duration-200"
+            >
               Custom Order
             </a>
           </div>
+
+          {/* Social proof strip */}
+          <div className="flex items-center gap-6 mt-12 pt-10 border-t border-dark/8">
+            {[['200+', 'Happy clients'], ['100%', 'Handcrafted'], ['5★', 'Rated']].map(([n, l]) => (
+              <div key={l}>
+                <p className="font-playfair text-xl text-terra font-semibold">{n}</p>
+                <p className="text-[10px] uppercase tracking-[0.16em] text-muted mt-0.5">{l}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Right — hero card */}
+        {/* ── Right visual card ── */}
         <div className="flex items-center justify-center px-8 md:px-12 py-16">
-          <div className="bg-cream p-10 md:p-12 text-center shadow-2xl relative max-w-sm w-full">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-terra via-gold to-sage" />
-            <div className="absolute -top-3 -right-3 bg-gold text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5">New Collection</div>
-            <span className="block text-7xl mb-4 animate-float">🧶</span>
-            <h3 className="font-playfair text-2xl text-brown mb-1">Crochet Couture</h3>
-            <p className="font-cormorant text-base text-muted italic mb-6">Made to measure, made with love</p>
-            <div className="flex gap-2 justify-center flex-wrap">
-              {['Handcrafted', 'Made-to-Order', 'Ghana Made'].map((t) => (
-                <span key={t} className="bg-white text-terra border border-terra/25 px-3 py-1.5 text-xs font-medium uppercase tracking-wider">{t}</span>
-              ))}
+          <div className="relative w-full max-w-[340px]">
+
+            {/* Decorative offset layer */}
+            <div className="absolute -bottom-4 -right-4 w-full h-full bg-terra/8 rounded-3xl" />
+            <div className="absolute -bottom-8 -right-8 w-full h-full bg-terra/4 rounded-3xl" />
+
+            {/* Main card */}
+            <div className="relative bg-cream rounded-3xl p-10 text-center shadow-xl border border-terra/10 z-10">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-terra/40 via-gold/60 to-sage/40 rounded-t-3xl" />
+
+              {/* "New Collection" badge */}
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-white text-[10px] font-bold uppercase tracking-[0.16em] px-4 py-1.5 rounded-full whitespace-nowrap">
+                New Collection
+              </span>
+
+              <span className="block text-6xl mb-5 animate-float">🧶</span>
+
+              <h3 className="font-playfair text-2xl text-brown mb-1">Crochet Couture</h3>
+              <p className="font-cormorant text-base text-muted italic mb-7">Made to measure, made with love</p>
+
+              <div className="flex gap-2 justify-center flex-wrap">
+                {['Handcrafted', 'Made-to-Order', 'Ghana Made'].map((t) => (
+                  <span
+                    key={t}
+                    className="bg-white text-terra/80 border border-terra/20 px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider rounded-full"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── MARQUEE ──────────────────────────────────────────────── */}
-      <div className="bg-brown text-cream py-3.5 overflow-hidden whitespace-nowrap">
-        <div className="inline-block animate-marquee font-cormorant text-base tracking-[0.15em] italic">
-          {MARQUEE_TEXT}
-          &nbsp;&nbsp;&nbsp;
-          {MARQUEE_TEXT}
+      {/* ══════════════════════════════════════════════════════════
+          MARQUEE
+      ══════════════════════════════════════════════════════════ */}
+      <div className="border-y border-terra/12 bg-cream overflow-hidden">
+        <div className="flex items-center whitespace-nowrap">
+          <div className="inline-flex items-center animate-marquee">
+            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+              <span key={i} className="inline-flex items-center gap-5 px-3 py-3.5">
+                <span className="font-cormorant italic text-[0.9rem] text-brown/70 tracking-[0.12em]">{item}</span>
+                <span className="text-terra/40 text-xs">✦</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── SHOP ─────────────────────────────────────────────────── */}
-      <section id="shop" className="bg-cream px-8 md:px-16 lg:px-24 py-20">
-        <div className="flex justify-between items-end mb-12 flex-wrap gap-6">
+      {/* ══════════════════════════════════════════════════════════
+          SHOP
+      ══════════════════════════════════════════════════════════ */}
+      <section id="shop" className="px-8 md:px-14 lg:px-20 py-24 bg-ww">
+        {/* Section header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div>
-            <div className="flex items-center gap-3 text-terra text-xs font-semibold uppercase tracking-[0.25em] mb-3">
-              <span className="block w-7 h-px bg-terra" /> Ready to Ship
+            <div className="flex items-center gap-3 mb-4">
+              <span className="block w-7 h-px bg-terra/60" />
+              <span className="text-terra text-[10px] font-semibold uppercase tracking-[0.28em]">Ready to Ship</span>
             </div>
             <h2 className="font-playfair text-4xl md:text-5xl text-dark">
               Our <em className="text-terra not-italic italic">Collection</em>
             </h2>
           </div>
-          <p className="font-cormorant text-lg text-muted max-w-xs">Each piece ships within 3–5 business days.</p>
+          <p className="font-cormorant text-lg text-muted max-w-xs leading-relaxed italic">
+            Each piece ships within 3–5 business days, beautifully packaged.
+          </p>
         </div>
 
+        {/* Product grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {STATIC_PRODUCTS.map((product) => (
-            <div key={product.id} className="bg-ww hover:-translate-y-1.5 hover:shadow-2xl transition-all duration-300 relative overflow-hidden cursor-pointer group">
-              {product.badge && (
-                <span className="absolute top-3 left-3 z-10 bg-terra text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1">
-                  {product.badge}
+            <div
+              key={product.id}
+              className="bg-white rounded-2xl overflow-hidden border border-muted/8 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer"
+            >
+              {/* Image / emoji area */}
+              <div className={`relative h-72 flex items-center justify-center overflow-hidden ${product.colorClass}`}>
+                {/* Gradient overlay on hover */}
+                <div className="absolute inset-0 bg-dark/0 group-hover:bg-dark/8 transition-colors duration-300" />
+
+                {/* Badge */}
+                {product.badge && (
+                  <span className="absolute top-4 left-4 z-10 bg-terra text-white text-[10px] font-bold uppercase tracking-[0.14em] px-3 py-1.5 rounded-full">
+                    {product.badge}
+                  </span>
+                )}
+
+                {/* Emoji */}
+                <span className="text-[5.5rem] group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+                  {product.emoji}
                 </span>
-              )}
-              <div className={`h-64 flex items-center justify-center text-7xl ${product.colorClass}`}>
-                {product.emoji}
-              </div>
-              <div className="p-5">
-                <div className="text-gold text-xs tracking-wider mb-1.5">★★★★★</div>
-                <h3 className="font-playfair text-lg text-dark mb-1">{product.name}</h3>
-                <p className="text-xs text-muted mb-4 leading-relaxed">{product.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="font-playfair text-xl text-terra font-bold">{formatCedi(product.price)}</span>
+
+                {/* Quick-add overlay on hover */}
+                <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
                   <button
                     onClick={() => handleAddToCart(product)}
-                    className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
+                    className={`w-full py-3 text-xs font-semibold uppercase tracking-[0.16em] transition-colors ${
                       addedId === product.id
                         ? 'bg-sage text-white'
-                        : 'bg-dark text-white hover:bg-terra'
+                        : 'bg-dark/90 text-white hover:bg-terra'
                     }`}
                   >
-                    {addedId === product.id ? '✓ Added!' : 'Add to Cart'}
+                    {addedId === product.id ? '✓ Added to Bag' : '+ Add to Bag'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Card body */}
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="min-w-0">
+                    <div className="text-gold text-xs tracking-wider mb-1.5">★★★★★</div>
+                    <h3 className="font-playfair text-[1.05rem] text-dark leading-snug">{product.name}</h3>
+                  </div>
+                  <span className="font-playfair text-lg text-terra font-semibold whitespace-nowrap flex-shrink-0">
+                    {formatCedi(product.price)}
+                  </span>
+                </div>
+                <p className="text-xs text-muted leading-relaxed mb-4">{product.description}</p>
+
+                {/* Bottom row */}
+                <div className="flex items-center justify-between pt-4 border-t border-muted/8">
+                  <span className="text-[10px] text-muted uppercase tracking-wider">Handcrafted</span>
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] px-4 py-2 rounded-full transition-all duration-200 ${
+                      addedId === product.id
+                        ? 'bg-sage/15 text-sage'
+                        : 'bg-terra/8 text-terra hover:bg-terra hover:text-white'
+                    }`}
+                  >
+                    {addedId === product.id ? (
+                      <>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Added
+                      </>
+                    ) : 'Add to Bag'}
                   </button>
                 </div>
               </div>
@@ -174,236 +321,350 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── ABOUT ────────────────────────────────────────────────── */}
-      <section id="about" className="grid md:grid-cols-2 gap-16 items-center bg-ww px-8 md:px-16 lg:px-24 py-20">
-        <div className="bg-cream p-10 relative shadow-2xl">
-          <div className="absolute bottom-[-14px] right-[-14px] w-full h-full border-2 border-terra/25 -z-10" />
-          <span className="block text-5xl mb-4">🪡</span>
-          <p className="font-cormorant text-2xl text-brown italic leading-relaxed mb-6">
-            "Every stitch is a labour of love — crafted with patience, passion, and a deep respect for the art of crochet."
-          </p>
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            {[['200+', 'Happy Clients'], ['3–10', 'Days per Piece'], ['100%', 'Handcrafted'], ['5★', 'Reviews']].map(([n, l]) => (
-              <div key={l} className="bg-white p-4 text-center">
-                <span className="block font-playfair text-3xl text-terra">{n}</span>
-                <span className="text-xs uppercase tracking-wider text-muted">{l}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* ══════════════════════════════════════════════════════════
+          ABOUT
+      ══════════════════════════════════════════════════════════ */}
+      <section id="about" className="bg-cream px-8 md:px-14 lg:px-20 py-24">
+        <div className="grid md:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
 
-        <div>
-          <div className="flex items-center gap-3 text-terra text-xs font-semibold uppercase tracking-[0.25em] mb-4">
-            <span className="block w-7 h-px bg-terra" /> Our Story
+          {/* Left: quote card */}
+          <div className="relative">
+            <div className="bg-white rounded-3xl p-10 shadow-lg border border-terra/8 relative z-10">
+              {/* Big quote mark */}
+              <div className="font-playfair text-[7rem] text-terra/15 leading-none absolute -top-4 left-6 select-none">&ldquo;</div>
+
+              <p className="font-cormorant text-2xl text-brown italic leading-relaxed mb-8 mt-4 relative z-10">
+                Every stitch is a labour of love — crafted with patience, passion, and a deep respect for the art of crochet.
+              </p>
+
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {[['200+', 'Happy Clients'], ['3–10', 'Days per Piece'], ['100%', 'Handcrafted'], ['5★', 'Reviews']].map(([n, l]) => (
+                  <div key={l} className="bg-cream rounded-xl p-4 text-center">
+                    <span className="block font-playfair text-2xl text-terra font-semibold">{n}</span>
+                    <span className="text-[10px] uppercase tracking-[0.16em] text-muted mt-1 block">{l}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Offset decoration */}
+            <div className="absolute bottom-[-12px] right-[-12px] w-full h-full bg-terra/6 rounded-3xl -z-0" />
           </div>
-          <h2 className="font-playfair text-4xl md:text-5xl text-dark mb-4">
-            Crafted with <em className="text-terra not-italic italic">Heart</em>
-          </h2>
-          <p className="font-cormorant text-xl text-muted leading-relaxed mb-6">
-            Bherty Stitches was born from a passion for crochet and a vision to create wearable art that empowers women. Based in Kasoa, Ghana, every piece is handcrafted with the finest yarns.
-          </p>
-          <ul className="flex flex-col gap-4">
-            {[
-              'Premium yarn sourced for durability and comfort',
-              'Custom measurements for your perfect fit',
-              'Every piece is unique — no two alike',
-              'Packaged beautifully, delivered with care',
-            ].map((f) => (
-              <li key={f} className="flex items-start gap-3 text-sm text-dark leading-relaxed">
-                <span className="text-terra text-xs mt-1 flex-shrink-0">✦</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-          <a href="#order" className="inline-block mt-8 bg-terra text-white px-8 py-4 text-sm font-semibold uppercase tracking-widest hover:bg-brown transition-colors">
-            Start a Custom Order
-          </a>
+
+          {/* Right: story */}
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <span className="block w-7 h-px bg-terra/60" />
+              <span className="text-terra text-[10px] font-semibold uppercase tracking-[0.28em]">Our Story</span>
+            </div>
+            <h2 className="font-playfair text-4xl md:text-5xl text-dark mb-6">
+              Crafted with <em className="text-terra not-italic italic">Heart</em>
+            </h2>
+            <p className="font-cormorant text-xl text-muted leading-relaxed mb-8 italic">
+              Bherty Stitches was born from a passion for crochet and a vision to create wearable art that empowers women. Based in Dansoman, Accra, every piece is handcrafted with the finest yarns and deepest care.
+            </p>
+            <ul className="flex flex-col gap-4 mb-10">
+              {[
+                'Premium yarn sourced for durability and comfort',
+                'Custom measurements for your perfect fit',
+                'Every piece is unique — no two alike',
+                'Packaged beautifully, delivered with care',
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-3.5">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-terra/12 flex items-center justify-center mt-0.5">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-terra">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
+                  <span className="text-sm text-dark/80 leading-relaxed">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#order"
+              className="inline-flex items-center gap-2.5 bg-terra text-white text-[11px] font-semibold uppercase tracking-[0.18em] px-7 py-3.5 rounded-full hover:bg-brown transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              Start a Custom Order
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* ── CUSTOM ORDER ─────────────────────────────────────────── */}
-      <section id="order" className="px-8 md:px-16 lg:px-24 py-20">
-        <div className="flex items-center gap-3 text-terra text-xs font-semibold uppercase tracking-[0.25em] mb-3">
-          <span className="block w-7 h-px bg-terra" /> Custom Orders
-        </div>
-        <h2 className="font-playfair text-4xl md:text-5xl text-dark mb-2">
-          Order Your <em className="text-terra not-italic italic">Dream Dress</em>
-        </h2>
-        <p className="font-cormorant text-xl text-muted mb-12">Tell us exactly what you want. We&apos;ll handcraft it just for you.</p>
+      {/* ══════════════════════════════════════════════════════════
+          CUSTOM ORDER
+      ══════════════════════════════════════════════════════════ */}
+      <section id="order" className="px-8 md:px-14 lg:px-20 py-24 bg-ww">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="block w-7 h-px bg-terra/60" />
+            <span className="text-terra text-[10px] font-semibold uppercase tracking-[0.28em]">Custom Orders</span>
+          </div>
+          <h2 className="font-playfair text-4xl md:text-5xl text-dark mb-3">
+            Order Your <em className="text-terra not-italic italic">Dream Dress</em>
+          </h2>
+          <p className="font-cormorant text-xl text-muted mb-14 italic">
+            Tell us exactly what you want. We&apos;ll handcraft it just for you.
+          </p>
 
-        <div className="grid md:grid-cols-2 gap-16">
-          {/* How it works */}
-          <div>
-            <h3 className="font-playfair text-2xl text-dark mb-6">How it works</h3>
-            <div className="flex flex-col gap-5 mb-8">
-              {[
-                ['1', 'Fill the Order Form', 'Share your measurements, colour preferences, and style ideas.'],
-                ['2', 'Receive Confirmation', "We'll reach out within 24 hours to confirm details and pricing."],
-                ['3', 'We Get to Work', 'Your dress is handcrafted with care over 3–10 days.'],
-                ['4', 'Delivered to You', 'Packaged beautifully — delivered or ready for pickup.'],
-              ].map(([n, t, d]) => (
-                <div key={n} className="flex gap-4">
-                  <div className="w-9 h-9 rounded-full bg-terra text-white font-bold text-sm flex items-center justify-center flex-shrink-0">{n}</div>
-                  <div>
-                    <strong className="block text-dark text-sm mb-0.5">{t}</strong>
-                    <p className="text-muted text-sm leading-relaxed">{d}</p>
+          <div className="grid md:grid-cols-2 gap-14">
+
+            {/* How it works */}
+            <div>
+              <h3 className="font-playfair text-2xl text-dark mb-8">How it works</h3>
+              <div className="flex flex-col gap-6 mb-10">
+                {[
+                  ['1', 'Fill the Order Form', 'Share your measurements, colour preferences, and style ideas.'],
+                  ['2', 'Receive Confirmation', "We'll reach out within 24 hours to confirm details and pricing."],
+                  ['3', 'We Get to Work', 'Your dress is handcrafted with care over 3–10 days.'],
+                  ['4', 'Delivered to You', 'Packaged beautifully — delivered or ready for pickup.'],
+                ].map(([n, t, d]) => (
+                  <div key={n} className="flex gap-4 group">
+                    <div className="w-9 h-9 rounded-full bg-terra text-white font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all">
+                      {n}
+                    </div>
+                    <div className="pt-0.5">
+                      <strong className="block text-dark text-sm font-semibold mb-1">{t}</strong>
+                      <p className="text-muted text-sm leading-relaxed">{d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pricing */}
+              <div className="bg-cream rounded-2xl p-6 border border-terra/8">
+                <h4 className="font-playfair text-lg text-dark mb-4">Pricing Guide</h4>
+                <div className="space-y-2.5">
+                  {[
+                    ['Mini Dresses', 250],
+                    ['Midi Dresses', 350],
+                    ['Maxi Dresses', 450],
+                  ].map(([name, price]) => (
+                    <div key={name as string} className="flex items-center justify-between">
+                      <span className="text-sm text-dark/70">{name as string}</span>
+                      <span className="text-sm font-semibold text-terra">from {formatCedi(price as number)}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-muted/15">
+                    <span className="text-sm text-dark/70">Rush orders (under 3 days)</span>
+                    <span className="text-sm font-semibold text-terra">+ {formatCedi(100)}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-            <h3 className="font-playfair text-xl text-dark mb-3">Pricing Guide</h3>
-            {[
-              ['Mini Dresses', 250],
-              ['Midi Dresses', 350],
-              ['Maxi Dresses', 450],
-            ].map(([name, price]) => (
-              <p key={name as string} className="text-sm text-dark mb-1">
-                {name as string}: from <strong className="text-terra">{formatCedi(price as number)}</strong>
-              </p>
-            ))}
-            <p className="text-sm text-dark mb-1">Rush orders (under 3 days): <strong className="text-terra">+ {formatCedi(100)}</strong></p>
-            <p className="text-sm text-muted italic mt-2">Final price depends on complexity and yarn type.</p>
-          </div>
-
-          {/* Order form */}
-          <form onSubmit={handleCustomOrder} className="bg-cream p-8 flex flex-col gap-4">
-            <h3 className="font-playfair text-2xl text-dark">Place Your Order</h3>
-            <p className="text-muted font-cormorant text-base">Fill in the form and we'll be in touch shortly ✨</p>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="First Name *" value={orderForm.firstName} onChange={(v) => setOrderForm({ ...orderForm, firstName: v })} placeholder="Ama" />
-              <FormField label="Last Name *" value={orderForm.lastName} onChange={(v) => setOrderForm({ ...orderForm, lastName: v })} placeholder="Mensah" />
-            </div>
-            <FormField label="Phone Number *" type="tel" value={orderForm.phone} onChange={(v) => setOrderForm({ ...orderForm, phone: v })} placeholder="+233 XX XXX XXXX" />
-            <FormField label="Email Address" type="email" value={orderForm.email} onChange={(v) => setOrderForm({ ...orderForm, email: v })} placeholder="ama@email.com" />
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs text-muted uppercase tracking-wider mb-1">Dress Style *</label>
-                <select
-                  value={orderForm.style}
-                  onChange={(e) => setOrderForm({ ...orderForm, style: e.target.value })}
-                  className="w-full border border-muted/30 px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra"
-                >
-                  <option value="">Select style</option>
-                  {STYLES.map((s) => <option key={s}>{s}</option>)}
-                </select>
+                <p className="text-[11px] text-muted italic mt-3">Final price depends on complexity and yarn type.</p>
               </div>
-              <FormField label="Colour Preference *" value={orderForm.colour} onChange={(v) => setOrderForm({ ...orderForm, colour: v })} placeholder="e.g. Coral, White" />
             </div>
-            <FormField label="Measurements (chest/waist/hips/height)" value={orderForm.measurements} onChange={(v) => setOrderForm({ ...orderForm, measurements: v })} placeholder="e.g. 36/28/38/5'6" />
-            <div>
-              <label className="block text-xs text-muted uppercase tracking-wider mb-1">Special Requests</label>
-              <textarea
-                value={orderForm.description}
-                onChange={(e) => setOrderForm({ ...orderForm, description: e.target.value })}
-                placeholder="Occasion, pattern, deadline..."
-                rows={3}
-                className="w-full border border-muted/30 px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra resize-none"
-              />
+
+            {/* Order form */}
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-muted/8">
+              <h3 className="font-playfair text-2xl text-dark mb-1">Place Your Order</h3>
+              <p className="font-cormorant text-base text-muted italic mb-7">Fill in the form and we&apos;ll be in touch shortly ✨</p>
+
+              <form onSubmit={handleCustomOrder} className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField label="First Name *" value={orderForm.firstName} onChange={(v) => setOrderForm({ ...orderForm, firstName: v })} placeholder="Ama" />
+                  <FormField label="Last Name *" value={orderForm.lastName} onChange={(v) => setOrderForm({ ...orderForm, lastName: v })} placeholder="Mensah" />
+                </div>
+                <FormField label="Phone Number *" type="tel" value={orderForm.phone} onChange={(v) => setOrderForm({ ...orderForm, phone: v })} placeholder="+233 XX XXX XXXX" />
+                <FormField label="Email Address" type="email" value={orderForm.email} onChange={(v) => setOrderForm({ ...orderForm, email: v })} placeholder="ama@email.com" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-muted mb-1.5">Dress Style *</label>
+                    <select
+                      value={orderForm.style}
+                      onChange={(e) => setOrderForm({ ...orderForm, style: e.target.value })}
+                      className="w-full border border-muted/25 rounded-lg px-4 py-3 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/8 transition-all"
+                    >
+                      <option value="">Select style</option>
+                      {STYLES.map((s) => <option key={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <FormField label="Colour Preference *" value={orderForm.colour} onChange={(v) => setOrderForm({ ...orderForm, colour: v })} placeholder="e.g. Coral, White" />
+                </div>
+
+                <FormField label="Measurements (chest/waist/hips/height)" value={orderForm.measurements} onChange={(v) => setOrderForm({ ...orderForm, measurements: v })} placeholder="e.g. 36/28/38/5'6" />
+
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-muted mb-1.5">Special Requests</label>
+                  <textarea
+                    value={orderForm.description}
+                    onChange={(e) => setOrderForm({ ...orderForm, description: e.target.value })}
+                    placeholder="Occasion, pattern, deadline..."
+                    rows={3}
+                    className="w-full border border-muted/25 rounded-lg px-4 py-3 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/8 transition-all resize-none placeholder:text-muted/40"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-terra text-white py-4 text-[11px] font-semibold uppercase tracking-[0.2em] rounded-full hover:bg-brown transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none mt-1"
+                >
+                  {submitting ? 'Submitting…' : '✦ Submit My Order'}
+                </button>
+              </form>
             </div>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-terra text-white py-4 text-sm font-semibold uppercase tracking-widest hover:bg-brown transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Submitting…' : '✦ Submit My Order'}
-            </button>
-          </form>
+          </div>
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ─────────────────────────────────────────── */}
-      <section id="testimonials" className="bg-dark px-8 md:px-16 lg:px-24 py-20">
-        <div className="flex items-center gap-3 text-terra text-xs font-semibold uppercase tracking-[0.25em] mb-3">
-          <span className="block w-7 h-px bg-terra" /> Client Love
-        </div>
-        <h2 className="font-playfair text-4xl md:text-5xl text-cream mb-12">
-          What Our <em className="text-terra not-italic italic">Clients Say</em>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="bg-[rgba(255,255,255,0.05)] border border-white/10 p-7">
-              <div className="text-gold text-sm tracking-wider mb-4">★★★★★</div>
-              <p className="font-cormorant text-lg text-cream/90 leading-relaxed mb-6 italic">&ldquo;{t.text}&rdquo;</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-terra/20 flex items-center justify-center text-xl">{t.avatar}</div>
-                <div>
-                  <p className="font-semibold text-cream text-sm">{t.name}</p>
-                  <p className="text-muted text-xs">{t.loc}</p>
+      {/* ══════════════════════════════════════════════════════════
+          TESTIMONIALS
+      ══════════════════════════════════════════════════════════ */}
+      <section id="testimonials" className="bg-dark px-8 md:px-14 lg:px-20 py-24">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="block w-7 h-px bg-terra/60" />
+            <span className="text-terra text-[10px] font-semibold uppercase tracking-[0.28em]">Client Love</span>
+          </div>
+          <h2 className="font-playfair text-4xl md:text-5xl text-cream mb-16">
+            What Our <em className="text-terra not-italic italic">Clients Say</em>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <div
+                key={t.name}
+                className="bg-white/5 border border-white/8 rounded-2xl p-7 hover:bg-white/8 hover:border-white/14 transition-all duration-300 relative group"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                {/* Stars */}
+                <div className="text-gold text-xs tracking-wider mb-5">★★★★★</div>
+
+                {/* Big opening quote */}
+                <div className="font-playfair text-[4rem] text-terra/25 leading-none absolute top-5 right-6 select-none group-hover:text-terra/35 transition-colors">
+                  &rdquo;
+                </div>
+
+                <p className="font-cormorant text-lg text-cream/85 leading-relaxed mb-7 italic relative z-10">
+                  &ldquo;{t.text}&rdquo;
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-terra/30 to-gold/20 flex items-center justify-center text-cream text-xs font-bold flex-shrink-0">
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-cream text-sm font-semibold leading-none">{t.name}</p>
+                    <p className="text-muted text-xs mt-0.5">{t.loc}, Ghana</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── FOOTER ───────────────────────────────────────────────── */}
-      <footer className="bg-brown text-cream px-8 md:px-16 lg:px-24 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
-          <div>
-            <h3 className="font-playfair text-2xl mb-3">Bherty <span className="text-terra italic">Stitches</span></h3>
-            <p className="text-cream/70 text-sm leading-relaxed">Handcrafted crochet fashion made with love. Wearable art for the modern woman.</p>
-          </div>
-          <div>
-            <h4 className="text-xs uppercase tracking-widest font-semibold mb-4 text-gold">Quick Links</h4>
-            <ul className="flex flex-col gap-2.5">
-              {[['#home', 'Home'], ['#shop', 'Shop'], ['#about', 'About'], ['#order', 'Custom Orders'], ['#testimonials', 'Reviews']].map(([h, l]) => (
-                <li key={l}><a href={h} className="text-cream/70 hover:text-cream text-sm transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs uppercase tracking-widest font-semibold mb-4 text-gold">Policies</h4>
-            <ul className="flex flex-col gap-2.5">
-              {['Shipping Info', 'Returns Policy', 'Care Guide', 'Size Guide', 'FAQs'].map((l) => (
-                <li key={l}><a href="#" className="text-cream/70 hover:text-cream text-sm transition-colors">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs uppercase tracking-widest font-semibold mb-4 text-gold">Get in Touch</h4>
-            <div className="flex flex-col gap-2 text-sm text-cream/70">
-              <p>📍 Prime Apartment and Hotel, Dansoman, Accra</p>
-              <p>💬 <a href="https://wa.me/message/UYA6ZRENI4P7O1" target="_blank" rel="noopener noreferrer" className="hover:text-cream transition-colors">WhatsApp Us</a></p>
-              <p>📧 <a href="mailto:quansahbetty@gmail.com" className="hover:text-cream transition-colors">quansahbetty@gmail.com</a></p>
-              <p className="mt-1">Mon – Sat: 8am – 6pm</p>
+      {/* ══════════════════════════════════════════════════════════
+          FOOTER
+      ══════════════════════════════════════════════════════════ */}
+      <footer className="bg-brown text-cream">
+        {/* Main footer grid */}
+        <div className="px-8 md:px-14 lg:px-20 pt-16 pb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
+
+            {/* Brand */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <h3 className="font-playfair text-2xl text-cream mb-3">
+                Bherty <span className="text-terra italic">Stitches</span>
+              </h3>
+              <p className="text-cream/60 text-sm leading-relaxed mb-5">
+                Handcrafted crochet fashion made with love. Wearable art for the modern woman.
+              </p>
+              <div className="flex gap-3">
+                {[
+                  ['#', 'IG'],
+                  ['#', 'FB'],
+                  ['https://wa.me/message/UYA6ZRENI4P7O1', 'WA'],
+                  ['#', 'TT'],
+                ].map(([h, l]) => (
+                  <a
+                    key={l}
+                    href={h as string}
+                    target={h === '#' ? undefined : '_blank'}
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-[10px] font-bold text-cream/50 hover:text-cream hover:border-white/40 transition-all"
+                  >
+                    {l}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick links */}
+            <div>
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-5">Quick Links</h4>
+              <ul className="flex flex-col gap-3">
+                {[['#home', 'Home'], ['#shop', 'Shop'], ['#about', 'About'], ['#order', 'Custom Orders'], ['#testimonials', 'Reviews']].map(([h, l]) => (
+                  <li key={l}>
+                    <a href={h} className="text-sm text-cream/55 hover:text-cream transition-colors">
+                      {l}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Policies */}
+            <div>
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-5">Policies</h4>
+              <ul className="flex flex-col gap-3">
+                {['Shipping Info', 'Returns Policy', 'Care Guide', 'Size Guide', 'FAQs'].map((l) => (
+                  <li key={l}>
+                    <a href="#" className="text-sm text-cream/55 hover:text-cream transition-colors">{l}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-5">Get in Touch</h4>
+              <div className="flex flex-col gap-3.5 text-sm text-cream/60">
+                <div className="flex items-start gap-2.5">
+                  <span className="flex-shrink-0 mt-0.5 opacity-60">📍</span>
+                  <span>Prime Apartment and Hotel, Dansoman, Accra</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="opacity-60">💬</span>
+                  <a href="https://wa.me/message/UYA6ZRENI4P7O1" target="_blank" rel="noopener noreferrer" className="hover:text-cream transition-colors">
+                    WhatsApp Us
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <span className="opacity-60">📧</span>
+                  <a href="mailto:quansahbetty@gmail.com" className="hover:text-cream transition-colors">
+                    quansahbetty@gmail.com
+                  </a>
+                </div>
+                <p className="text-xs text-cream/40 mt-1">Mon – Sat · 8am – 6pm</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-cream/50 text-xs">© 2025 Bherty Stitches. All rights reserved. Made with 🧶 and love.</p>
-          <div className="flex gap-4 text-xl">
-            {[['#', '📸', 'Instagram'], ['#', '💙', 'Facebook'], ['https://wa.me/message/UYA6ZRENI4P7O1', '💬', 'WhatsApp'], ['#', '🎵', 'TikTok']].map(([h, e, t]) => (
-              <a key={t} href={h as string} target={h === '#' ? undefined : '_blank'} rel="noopener noreferrer" title={t as string} className="opacity-60 hover:opacity-100 transition-opacity">{e}</a>
-            ))}
-          </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-white/8 px-8 md:px-14 lg:px-20 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-cream/35 text-xs">© 2025 Bherty Stitches. All rights reserved.</p>
+          <p className="text-cream/30 text-xs">Made with 🧶 and love in Ghana</p>
         </div>
       </footer>
 
-      {/* FAB cart button */}
+      {/* ══════════════════════════════════════════════════════════
+          FAB Cart
+      ══════════════════════════════════════════════════════════ */}
       <button
         onClick={() => setCartOpen(true)}
-        className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full bg-terra text-white shadow-lg hover:bg-brown transition-colors flex items-center justify-center text-xl"
+        className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full bg-terra text-white shadow-lg shadow-terra/30 hover:bg-brown transition-all duration-200 hover:scale-105 hover:shadow-xl flex items-center justify-center"
         aria-label="Open cart"
       >
-        🛒
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
       </button>
     </>
-  );
-}
-
-function FormField({ label, value, onChange, placeholder, type = 'text' }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-xs text-muted uppercase tracking-wider mb-1">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full border border-muted/30 px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra"
-      />
-    </div>
   );
 }
