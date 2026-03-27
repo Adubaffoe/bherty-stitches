@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { db, storage } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import {
   collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
 } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 import { formatCedi } from '@/lib/formatCedi';
 import { Product, STATIC_PRODUCTS } from '@/lib/products';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -106,31 +106,16 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function handleImageUpload(file: File): Promise<string> {
-    const path = `products/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, path);
-    return new Promise((resolve, reject) => {
-      const task = uploadBytesResumable(storageRef, file);
-      task.on(
-        'state_changed',
-        (snap) => setUploadProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
-        (err) => { setUploadProgress(null); reject(err); },
-        async () => {
-          const url = await getDownloadURL(task.snapshot.ref);
-          setUploadProgress(null);
-          resolve(url);
-        }
-      );
-    });
-  }
-
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setUploadProgress(0);
     try {
-      const url = await handleImageUpload(file);
+      const url = await uploadToCloudinary(file, (pct) => setUploadProgress(pct));
+      setUploadProgress(null);
       setForm((f) => ({ ...f, imageUrl: url }));
     } catch {
+      setUploadProgress(null);
       alert('Image upload failed. Please try again.');
     }
   }
