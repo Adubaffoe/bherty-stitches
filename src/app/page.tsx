@@ -156,6 +156,12 @@ export default function HomePage() {
             >
               Custom Order
             </a>
+            <a
+              href="/track-order"
+              className="inline-flex items-center gap-2.5 border border-terra/30 bg-white/70 text-terra text-[11px] font-semibold uppercase tracking-[0.18em] px-7 py-3.5 rounded-full hover:bg-terra hover:text-white hover:border-terra transition-all duration-200"
+            >
+              Track Order
+            </a>
           </div>
 
           {/* Social proof strip */}
@@ -318,6 +324,32 @@ export default function HomePage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          TRACK ORDER
+      ══════════════════════════════════════════════════════════ */}
+      <section className="px-8 md:px-14 lg:px-20 py-8 bg-ww">
+        <div className="rounded-[2rem] border border-terra/10 bg-gradient-to-r from-cream via-white to-cream px-8 md:px-12 py-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 shadow-[0_12px_40px_rgba(42,26,20,0.05)]">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="block w-7 h-px bg-terra/60" />
+              <span className="text-terra text-[10px] font-semibold uppercase tracking-[0.28em]">Order Tracking</span>
+            </div>
+            <h2 className="font-playfair text-3xl md:text-4xl text-dark mb-2">
+              Already placed an order?
+            </h2>
+            <p className="font-cormorant text-xl text-muted italic leading-relaxed max-w-2xl">
+              Use your order number to see whether your piece is received, in progress, ready, or delivered.
+            </p>
+          </div>
+          <a
+            href="/track-order"
+            className="inline-flex items-center justify-center gap-2.5 bg-terra text-white text-[11px] font-semibold uppercase tracking-[0.18em] px-7 py-3.5 rounded-full hover:bg-brown transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
+          >
+            Track My Order
+          </a>
         </div>
       </section>
 
@@ -576,7 +608,7 @@ export default function HomePage() {
             <div>
               <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold mb-5">Quick Links</h4>
               <ul className="flex flex-col gap-3">
-                {[['#home', 'Home'], ['#shop', 'Shop'], ['#about', 'About'], ['#order', 'Custom Orders'], ['#testimonials', 'Reviews']].map(([h, l]) => (
+                {[['#home', 'Home'], ['#shop', 'Shop'], ['#about', 'About'], ['#order', 'Custom Orders'], ['#testimonials', 'Reviews'], ['/track-order', 'Track Order']].map(([h, l]) => (
                   <li key={l}>
                     <a href={h} className="text-sm text-cream/55 hover:text-cream transition-colors">
                       {l}
