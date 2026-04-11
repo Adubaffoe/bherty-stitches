@@ -72,11 +72,11 @@ function IconLogOut() {
 
 /* ── Nav items ─────────────────────────────────────────────── */
 const NAV = [
-  { href: '/admin', label: 'Dashboard', icon: <IconGrid /> },
-  { href: '/admin/orders', label: 'Orders', icon: <IconPackage /> },
-  { href: '/admin/requests', label: 'Custom Requests', icon: <IconScissors /> },
-  { href: '/admin/products', label: 'Products', icon: <IconTag /> },
-  { href: '/admin/settings', label: 'Settings', icon: <IconSettings /> },
+  { href: '/admin', label: 'Dashboard', description: 'Overview and signals', icon: <IconGrid /> },
+  { href: '/admin/orders', label: 'Orders', description: 'Payments and fulfilment', icon: <IconPackage /> },
+  { href: '/admin/requests', label: 'Requests', description: 'Custom client pipeline', icon: <IconScissors /> },
+  { href: '/admin/products', label: 'Products', description: 'Catalog and images', icon: <IconTag /> },
+  { href: '/admin/settings', label: 'Settings', description: 'Store details and payment', icon: <IconSettings /> },
 ];
 
 /* ── Layout ────────────────────────────────────────────────── */
@@ -99,69 +99,91 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-[#F9FAFB]">
+      <div className="flex min-h-screen bg-[#f6f1ea]">
 
         {/* ── Sidebar ─────────────────────────────────────────── */}
-        <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-100 flex flex-col z-30">
+        <aside className="fixed inset-y-0 left-0 w-72 bg-[#2b1d18] text-white flex flex-col z-30 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,_rgba(196,98,58,0.24),_transparent_34%),linear-gradient(180deg,_rgba(255,255,255,0.03),_transparent)]" />
           {/* Brand */}
-          <div className="h-16 flex items-center px-6 border-b border-gray-100">
-            <div className="w-8 h-8 rounded-lg bg-terra flex items-center justify-center text-white font-playfair font-bold text-sm mr-3 flex-shrink-0">
-              B
+          <div className="relative px-7 pt-8 pb-6 border-b border-white/8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-terra flex items-center justify-center text-white font-playfair font-bold text-base shadow-[0_8px_30px_rgba(196,98,58,0.35)] flex-shrink-0">
+                B
+              </div>
+              <div>
+                <span className="font-playfair text-xl leading-none block">
+                  Bherty <span className="text-terra italic">Admin</span>
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.24em] text-white/45">Studio Console</span>
+              </div>
             </div>
-            <span className="font-playfair text-dark text-lg leading-none">
-              Bherty<span className="text-terra italic"> Admin</span>
-            </span>
+            <p className="text-sm text-white/58 leading-relaxed max-w-[15rem]">
+              A refined control room for orders, clients, and collection management.
+            </p>
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-            {NAV.map(({ href, label, icon }) => {
+          <nav className="relative flex-1 px-5 py-6 space-y-3 overflow-y-auto">
+            <p className="px-2 text-[10px] uppercase tracking-[0.24em] text-white/35 mb-3">Navigation</p>
+            {NAV.map(({ href, label, description, icon }) => {
               const active = pathname === href;
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group ${
+                  className={`group relative flex items-start gap-3 rounded-2xl px-4 py-4 transition-all duration-200 ${
                     active
-                      ? 'bg-terra/10 text-terra'
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-gradient-to-br from-white/14 to-white/6 text-white shadow-[0_14px_35px_rgba(0,0,0,0.18)] ring-1 ring-white/10'
+                      : 'text-white/78 hover:bg-white/6 hover:text-white'
                   }`}
                 >
-                  <span className={`flex-shrink-0 transition-colors ${active ? 'text-terra' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  <span className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl transition-colors ${
+                    active ? 'bg-terra text-white shadow-[0_10px_24px_rgba(196,98,58,0.35)]' : 'bg-white/6 text-white/70 group-hover:bg-white/10 group-hover:text-white'
+                  }`}>
                     {icon}
                   </span>
-                  {label}
-                  {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-terra" />}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold tracking-[0.01em]">{label}</span>
+                    <span className={`mt-1 block text-xs leading-relaxed ${active ? 'text-white/72' : 'text-white/42 group-hover:text-white/55'}`}>
+                      {description}
+                    </span>
+                  </span>
+                  {active && <span className="mt-1.5 h-2 w-2 rounded-full bg-terra shadow-[0_0_0_6px_rgba(196,98,58,0.12)]" />}
                 </Link>
               );
             })}
 
-            <div className="pt-4 mt-4 border-t border-gray-100">
+            <div className="pt-5 mt-5 border-t border-white/8">
               <Link
                 href="/"
                 target="_blank"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all duration-150"
+                className="flex items-center gap-3 rounded-2xl px-4 py-4 text-sm font-medium text-white/70 hover:bg-white/6 hover:text-white transition-all duration-150"
               >
-                <IconExternalLink />
-                View Store
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/6">
+                  <IconExternalLink />
+                </span>
+                <span>
+                  <span className="block font-semibold">View Store</span>
+                  <span className="block text-xs text-white/40">Open the public website</span>
+                </span>
               </Link>
             </div>
           </nav>
 
           {/* User footer */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-terra/20 flex items-center justify-center text-terra text-xs font-bold flex-shrink-0">
+          <div className="relative p-5 border-t border-white/8">
+            <div className="flex items-center gap-3 rounded-2xl bg-white/6 px-3 py-3">
+              <div className="w-10 h-10 rounded-2xl bg-terra/18 flex items-center justify-center text-terra text-xs font-bold flex-shrink-0 border border-terra/15">
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-dark truncate">{user?.email}</p>
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Admin</p>
+                <p className="text-xs font-medium text-white truncate">{user?.email}</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-[0.18em] mt-0.5">Admin Session</p>
               </div>
               <button
                 onClick={handleSignOut}
                 title="Sign out"
-                className="text-gray-400 hover:text-red-500 transition-colors p-1 flex-shrink-0"
+                className="text-white/45 hover:text-red-300 transition-colors p-1 flex-shrink-0"
               >
                 <IconLogOut />
               </button>
@@ -170,14 +192,17 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         </aside>
 
         {/* ── Main ────────────────────────────────────────────── */}
-        <div className="flex-1 ml-64 flex flex-col min-h-screen">
+        <div className="flex-1 ml-72 flex flex-col min-h-screen">
           {/* Top bar */}
-          <header className="sticky top-0 z-20 h-16 bg-white border-b border-gray-100 flex items-center px-8">
-            <h1 className="text-lg font-semibold text-dark tracking-tight">{title}</h1>
+          <header className="sticky top-0 z-20 h-20 bg-[#f6f1ea]/92 backdrop-blur-md border-b border-[#e8ddd0] flex items-center px-10">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.22em] text-muted mb-1">Bherty Stitches</p>
+              <h1 className="text-2xl font-semibold text-dark tracking-tight">{title}</h1>
+            </div>
           </header>
 
           {/* Page content */}
-          <main className="flex-1 p-8">
+          <main className="flex-1 p-10">
             {children}
           </main>
         </div>
