@@ -25,6 +25,26 @@ function IconTag() {
     </svg>
   );
 }
+function IconPackage() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      <path d="M3.29 7 12 12l8.71-5"/>
+      <path d="M12 22V12"/>
+    </svg>
+  );
+}
+function IconScissors() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="6" cy="6" r="3"/>
+      <circle cx="6" cy="18" r="3"/>
+      <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+      <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+      <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+    </svg>
+  );
+}
 function IconSettings() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -53,6 +73,8 @@ function IconLogOut() {
 /* ── Nav items ─────────────────────────────────────────────── */
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: <IconGrid /> },
+  { href: '/admin/orders', label: 'Orders', icon: <IconPackage /> },
+  { href: '/admin/requests', label: 'Custom Requests', icon: <IconScissors /> },
   { href: '/admin/products', label: 'Products', icon: <IconTag /> },
   { href: '/admin/settings', label: 'Settings', icon: <IconSettings /> },
 ];

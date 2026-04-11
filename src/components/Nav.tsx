@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: '/#about', label: 'About' },
   { href: '/#order', label: 'Custom Order' },
   { href: '/#testimonials', label: 'Reviews' },
+  { href: '/track-order', label: 'Track Order' },
 ];
 
 interface NavProps {

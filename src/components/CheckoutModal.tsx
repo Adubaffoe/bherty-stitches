@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { formatCedi } from '@/lib/formatCedi';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { fetchSettings, StoreSettings, DEFAULT_SETTINGS } from '@/lib/settings';
+import Link from 'next/link';
+import { buildPublicTrackingRecord, generateOrderNumber } from '@/lib/orderTracking';
 
 type DeliveryMode = 'delivery' | 'pickup' | null;
 type Step = 1 | 2 | 3 | 4;
@@ -116,6 +118,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const [delMode, setDelMode] = useState<DeliveryMode>(null);
   const [success, setSuccess] = useState(false);
   const [waLink, setWaLink] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
 
   const [contact, setContact] = useState<ContactInfo>({
@@ -138,7 +141,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   }, [open]);
 
   function reset() {
-    setStep(1); setDelMode(null); setSuccess(false); setWaLink('');
+    setStep(1); setDelMode(null); setSuccess(false); setWaLink(''); setOrderNumber('');
     setContact({ firstName: '', lastName: '', phone: '', email: '', measurements: '', notes: '' });
     setDelivery({ address: '', town: '', region: '', landmark: '', deliveryDate: '', pickupDate: '', pickupTime: '' });
     setPayment({ momoName: '', momoNumber: '', transactionId: '', amountPaid: '' });
@@ -175,6 +178,13 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   }
 
   async function placeOrder() {
+    const generatedOrderNumber = generateOrderNumber();
+    const orderItems = state.items.map((i) => ({
+      productId: i.product.id,
+      name: i.product.name,
+      price: i.product.price,
+      qty: i.qty,
+    }));
     const items = state.items.map((i) =>
       `• ${i.product.emoji} ${i.product.name} × ${i.qty} = ${formatCedi(i.product.price * i.qty)}`
     ).join('\n');
@@ -188,21 +198,17 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
     const payText = `\n\n💳 *PAYMENT*\nMoMo Name: ${payment.momoName}\nMoMo Number: ${payment.momoNumber}\nTransaction ID: ${payment.transactionId}${payment.amountPaid ? '\nAmount Paid: GH₵ ' + payment.amountPaid : ''}`;
 
-    const msg = `Hi Bherty Stitches! 🧶\n\n*New Order from ${contact.firstName} ${contact.lastName}*\n📱 ${contact.phone}${contact.email ? '\n📧 ' + contact.email : ''}\n\n*Items Ordered:*\n${items}\n\n*Items Total: ${formatCedi(totalPrice)}*\n\n${delText}${payText}${contact.measurements ? '\n\n📏 Measurements: ' + contact.measurements : ''}${contact.notes ? '\n\n📝 Notes: ' + contact.notes : ''}\n\nPlease confirm my order. Thank you! 😊`;
+    const msg = `Hi Bherty Stitches! 🧶\n\n*New Order from ${contact.firstName} ${contact.lastName}*\n🔖 Order Number: ${generatedOrderNumber}\n📱 ${contact.phone}${contact.email ? '\n📧 ' + contact.email : ''}\n\n*Items Ordered:*\n${items}\n\n*Items Total: ${formatCedi(totalPrice)}*\n\n${delText}${payText}${contact.measurements ? '\n\n📏 Measurements: ' + contact.measurements : ''}${contact.notes ? '\n\n📝 Notes: ' + contact.notes : ''}\n\nPlease confirm my order. Thank you! 😊`;
 
     try {
-      await addDoc(collection(db, 'orders'), {
+      const orderRef = await addDoc(collection(db, 'orders'), {
+        orderNumber: generatedOrderNumber,
         customerName: `${contact.firstName} ${contact.lastName}`,
         phone: contact.phone,
         email: contact.email || null,
         measurements: contact.measurements || null,
         notes: contact.notes || null,
-        items: state.items.map((i) => ({
-          productId: i.product.id,
-          name: i.product.name,
-          price: i.product.price,
-          qty: i.qty,
-        })),
+        items: orderItems,
         total: totalPrice,
         deliveryMode: delMode,
         deliveryInfo: delMode === 'delivery' ? {
@@ -225,10 +231,27 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
         status: 'new',
         createdAt: serverTimestamp(),
       });
+
+      await setDoc(
+        doc(db, 'orderTracking', generatedOrderNumber),
+        buildPublicTrackingRecord({
+          orderNumber: generatedOrderNumber,
+          customerName: contact.firstName,
+          status: 'new',
+          total: totalPrice,
+          deliveryMode: delMode,
+          items: orderItems.map((item) => ({ name: item.name, qty: item.qty })),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        }),
+      );
+
+      await setDoc(orderRef, { trackingDocId: generatedOrderNumber, updatedAt: serverTimestamp() }, { merge: true });
     } catch {
       // Still proceed to WhatsApp even if Firestore write fails
     }
 
+    setOrderNumber(generatedOrderNumber);
     setWaLink(`https://wa.me/message/UYA6ZRENI4P7O1?text=${encodeURIComponent(msg)}`);
     setSuccess(true);
     dispatch({ type: 'CLEAR' });
@@ -316,6 +339,13 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               <p className="text-muted text-sm leading-relaxed mb-8 max-w-xs mx-auto">
                 Click below to send your order details to us on WhatsApp. We&apos;ll confirm and get started right away.
               </p>
+              <div className="bg-cream rounded-2xl border border-terra/10 px-5 py-4 max-w-sm mx-auto mb-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted mb-2">Your Order Number</p>
+                <p className="font-playfair text-2xl text-terra break-all">{orderNumber}</p>
+                <p className="text-xs text-muted mt-2 leading-relaxed">
+                  Keep this number safe. You can track your order anytime on the website.
+                </p>
+              </div>
               <a
                 href={waLink}
                 target="_blank"
@@ -327,6 +357,12 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 </svg>
                 Send Order via WhatsApp
               </a>
+              <Link
+                href={`/track-order?order=${encodeURIComponent(orderNumber)}`}
+                className="inline-flex items-center gap-2.5 border border-terra/30 text-terra px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-terra hover:text-white transition-all mt-3"
+              >
+                Track This Order
+              </Link>
               <p className="text-muted/60 text-xs mt-4">
                 We&apos;ll confirm your order within a few hours.
               </p>

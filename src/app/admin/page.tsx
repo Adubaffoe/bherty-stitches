@@ -5,9 +5,11 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { formatCedi } from '@/lib/formatCedi';
 import AdminLayout from '@/components/admin/AdminLayout';
+import Link from 'next/link';
 
 interface OrderSummary {
   id: string;
+  orderNumber?: string;
   customerName: string;
   total: number;
   status: string;
@@ -45,20 +47,29 @@ function StatCard({ label, value, icon, loading }: { label: string; value: numbe
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [customRequests, setCustomRequests] = useState<CustomRequestSummary[]>([]);
-  const [stats, setStats] = useState({ orders: 0, requests: 0, products: 0 });
+  const [stats, setStats] = useState({ orders: 0, requests: 0, products: 0, revenue: 0, pendingOrders: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [ordersSnap, requestsSnap, productsSnap] = await Promise.all([
+        const [recentOrdersSnap, recentRequestsSnap, allOrdersSnap, allRequestsSnap, productsSnap] = await Promise.all([
           getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(5))),
           getDocs(query(collection(db, 'customRequests'), orderBy('createdAt', 'desc'), limit(5))),
+          getDocs(collection(db, 'orders')),
+          getDocs(collection(db, 'customRequests')),
           getDocs(collection(db, 'products')),
         ]);
-        setOrders(ordersSnap.docs.map((d) => ({ id: d.id, ...d.data() } as OrderSummary)));
-        setCustomRequests(requestsSnap.docs.map((d) => ({ id: d.id, ...d.data() } as CustomRequestSummary)));
-        setStats({ orders: ordersSnap.size, requests: requestsSnap.size, products: productsSnap.size });
+        const allOrders = allOrdersSnap.docs.map((d) => ({ id: d.id, ...d.data() } as OrderSummary));
+        setOrders(recentOrdersSnap.docs.map((d) => ({ id: d.id, ...d.data() } as OrderSummary)));
+        setCustomRequests(recentRequestsSnap.docs.map((d) => ({ id: d.id, ...d.data() } as CustomRequestSummary)));
+        setStats({
+          orders: allOrdersSnap.size,
+          requests: allRequestsSnap.size,
+          products: productsSnap.size,
+          revenue: allOrders.reduce((sum, order) => sum + (order.total || 0), 0),
+          pendingOrders: allOrders.filter((order) => !['delivered', 'cancelled'].includes(order.status)).length,
+        });
       } catch {
         // silent
       } finally {
@@ -75,6 +86,38 @@ export default function AdminDashboard() {
         <StatCard label="Total Orders" value={stats.orders} icon="📦" loading={loading} />
         <StatCard label="Custom Requests" value={stats.requests} icon="✂️" loading={loading} />
         <StatCard label="Products" value={stats.products} icon="👗" loading={loading} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+        <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Revenue Tracked</p>
+          {loading ? (
+            <div className="h-9 w-28 bg-gray-100 rounded-lg animate-pulse" />
+          ) : (
+            <p className="text-4xl font-semibold text-dark">{formatCedi(stats.revenue)}</p>
+          )}
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 p-6">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Pending Orders</p>
+          {loading ? (
+            <div className="h-9 w-16 bg-gray-100 rounded-lg animate-pulse" />
+          ) : (
+            <p className="text-4xl font-semibold text-dark">{stats.pendingOrders}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <Link href="/admin/orders" className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Order Workflow</p>
+          <h2 className="text-xl font-semibold text-dark mb-2">Manage every order from one place</h2>
+          <p className="text-sm text-gray-400 leading-relaxed">Review payment details, update statuses, and keep internal notes as each order moves from new to delivered.</p>
+        </Link>
+        <Link href="/admin/requests" className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Custom Requests</p>
+          <h2 className="text-xl font-semibold text-dark mb-2">Track enquiries and quote follow-up</h2>
+          <p className="text-sm text-gray-400 leading-relaxed">Open each request, move it through your pipeline, and keep private notes while you convert enquiries into orders.</p>
+        </Link>
       </div>
 
       {/* Recent activity */}

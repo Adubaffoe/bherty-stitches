@@ -19,6 +19,16 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Public tracking — safe customer-facing order status by order number
+    match /orderTracking/{orderNumber} {
+      allow read: if true;
+      allow create: if
+        request.resource.data.keys().hasAll(['orderNumber', 'customerName', 'status', 'total', 'deliveryMode', 'items', 'createdAt']) &&
+        request.resource.data.orderNumber == orderNumber &&
+        request.resource.data.status == 'new';
+      allow update, delete: if isAdmin();
+    }
+
     // Custom requests — anyone can create; admin can read/write all
     match /customRequests/{requestId} {
       allow create: if
