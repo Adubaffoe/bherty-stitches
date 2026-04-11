@@ -42,6 +42,9 @@ interface OrderRecord {
   customerMobileMoneyNumber?: string | null;
   transactionId?: string | null;
   amountPaid?: number | null;
+  paymentStatus?: string | null;
+  paystackReference?: string | null;
+  paystackChannel?: string | null;
   status: OrderStatus;
   adminNote?: string | null;
   createdAt: FireDate;
@@ -67,6 +70,16 @@ function StatusPill({ status }: { status: OrderStatus }) {
     <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${styles[status]}`}>
       {status}
     </span>
+  );
+}
+
+function MetricCard({ label, value, accent }: { label: string; value: string | number; accent: string }) {
+  return (
+    <div className="relative overflow-hidden rounded-[1.6rem] border border-[#eadfd3] bg-white p-6 shadow-[0_18px_50px_rgba(42,26,20,0.05)]">
+      <div className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
+      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted mb-3">{label}</p>
+      <p className="font-playfair text-4xl text-dark">{value}</p>
+    </div>
   );
 }
 
@@ -151,35 +164,34 @@ export default function AdminOrdersPage() {
 
   return (
     <AdminLayout title="Orders">
+      <section className="rounded-[2rem] border border-[#e6d9cb] bg-[linear-gradient(135deg,#fffaf5_0%,#f6ede4_100%)] px-8 py-8 mb-8 shadow-[0_20px_60px_rgba(42,26,20,0.06)]">
+        <p className="text-[10px] font-semibold text-terra uppercase tracking-[0.28em] mb-3">Order Studio</p>
+        <h2 className="font-playfair text-4xl text-dark mb-3">Premium order oversight</h2>
+        <p className="max-w-2xl text-sm text-muted leading-relaxed">
+          Search quickly, update fulfilment with confidence, and keep every client order moving with a calmer studio workflow.
+        </p>
+      </section>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Total Orders</p>
-          <p className="text-4xl font-semibold text-dark">{orders.length}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Pending</p>
-          <p className="text-4xl font-semibold text-dark">{pendingOrders}</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Revenue Tracked</p>
-          <p className="text-4xl font-semibold text-dark">{formatCedi(totalRevenue)}</p>
-        </div>
+        <MetricCard label="Total Orders" value={orders.length} accent="bg-gradient-to-r from-terra to-gold" />
+        <MetricCard label="Pending" value={pendingOrders} accent="bg-gradient-to-r from-dark to-brown" />
+        <MetricCard label="Revenue Tracked" value={formatCedi(totalRevenue)} accent="bg-gradient-to-r from-brown to-terra" />
       </div>
 
       <div className="grid xl:grid-cols-[1.2fr_0.9fr] gap-6">
-        <section className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-100">
+        <section className="rounded-[1.75rem] border border-[#e6d9cb] bg-white overflow-hidden shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
+          <div className="px-6 py-5 border-b border-[#f1e7dc] bg-[#fffaf5]">
             <div className="flex flex-col md:flex-row md:items-center gap-3">
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by customer, phone, transaction ID, or order ID"
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-dark focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10"
+                className="flex-1 border border-[#e4d5c7] rounded-2xl px-4 py-3 text-sm text-dark focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10"
               />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as 'all' | OrderStatus)}
-                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10"
+                className="border border-[#e4d5c7] rounded-2xl px-4 py-3 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10"
               >
                 <option value="all">All statuses</option>
                 {STATUS_OPTIONS.map((status) => (
@@ -203,13 +215,13 @@ export default function AdminOrdersPage() {
               <p className="text-sm text-gray-400">No orders matched your filter.</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-[#f5ece2]">
               {filteredOrders.map((order) => (
                 <button
                   key={order.id}
                   onClick={() => setSelectedId(order.id)}
                   className={`w-full text-left px-6 py-4 transition-colors ${
-                    selectedOrder?.id === order.id ? 'bg-terra/5' : 'hover:bg-gray-50'
+                    selectedOrder?.id === order.id ? 'bg-terra/5' : 'hover:bg-[#fffaf5]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -234,7 +246,7 @@ export default function AdminOrdersPage() {
           )}
         </section>
 
-        <aside className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <aside className="rounded-[1.75rem] border border-[#e6d9cb] bg-white overflow-hidden shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
           {!selectedOrder ? (
             <div className="px-6 py-14 text-center">
               <p className="text-3xl mb-2">🧾</p>
@@ -242,10 +254,10 @@ export default function AdminOrdersPage() {
             </div>
           ) : (
             <>
-              <div className="px-6 py-5 border-b border-gray-100">
+              <div className="px-6 py-5 border-b border-[#f1e7dc] bg-[#fffaf5]">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-lg font-semibold text-dark">{selectedOrder.customerName}</p>
+                    <p className="font-playfair text-2xl text-dark">{selectedOrder.customerName}</p>
                     <p className="text-xs text-gray-400 mt-1">Order ID: {selectedOrder.id}</p>
                     {selectedOrder.orderNumber && <p className="text-xs text-terra mt-2 font-medium">Tracking No: {selectedOrder.orderNumber}</p>}
                   </div>
@@ -260,7 +272,7 @@ export default function AdminOrdersPage() {
                     value={selectedOrder.status}
                     onChange={(e) => updateOrder(selectedOrder.id, { status: e.target.value as OrderStatus })}
                     disabled={savingId === selectedOrder.id}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10 disabled:opacity-60"
+                    className="w-full border border-[#e4d5c7] rounded-2xl px-4 py-3 text-sm text-dark bg-white focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10 disabled:opacity-60"
                   >
                     {STATUS_OPTIONS.map((status) => (
                       <option key={status} value={status}>
@@ -291,7 +303,7 @@ export default function AdminOrdersPage() {
                         <p className="font-semibold text-dark">{formatCedi(item.price * item.qty)}</p>
                       </div>
                     ))}
-                    <div className="border-t border-gray-100 pt-3 flex items-center justify-between">
+                    <div className="border-t border-[#f1e7dc] pt-3 flex items-center justify-between">
                       <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Total</span>
                       <span className="text-lg font-semibold text-terra">{formatCedi(selectedOrder.total)}</span>
                     </div>
@@ -314,9 +326,12 @@ export default function AdminOrdersPage() {
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Payment</p>
                   <div className="text-sm text-dark space-y-1.5">
+                    {selectedOrder.paymentStatus && <p>Status: {selectedOrder.paymentStatus}</p>}
                     {selectedOrder.customerMobileMoneyName && <p>{selectedOrder.customerMobileMoneyName}</p>}
                     {selectedOrder.customerMobileMoneyNumber && <p>{selectedOrder.customerMobileMoneyNumber}</p>}
                     {selectedOrder.transactionId && <p>Txn ID: {selectedOrder.transactionId}</p>}
+                    {selectedOrder.paystackReference && <p>Paystack Ref: {selectedOrder.paystackReference}</p>}
+                    {selectedOrder.paystackChannel && <p>Channel: {selectedOrder.paystackChannel}</p>}
                     {selectedOrder.amountPaid != null && <p>Amount paid: {formatCedi(selectedOrder.amountPaid)}</p>}
                   </div>
                 </div>
@@ -324,10 +339,10 @@ export default function AdminOrdersPage() {
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">Measurements & Notes</p>
                   <div className="space-y-3">
-                    <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-dark min-h-14">
+                    <div className="rounded-2xl bg-[#faf4ee] px-4 py-3 text-sm text-dark min-h-14 border border-[#f1e7dc]">
                       {selectedOrder.measurements || 'No measurements provided.'}
                     </div>
-                    <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-dark min-h-14">
+                    <div className="rounded-2xl bg-[#faf4ee] px-4 py-3 text-sm text-dark min-h-14 border border-[#f1e7dc]">
                       {selectedOrder.notes || 'No customer notes provided.'}
                     </div>
                     <textarea
@@ -341,7 +356,7 @@ export default function AdminOrdersPage() {
                       }
                       onBlur={(e) => updateOrder(selectedOrder.id, { adminNote: e.target.value })}
                       placeholder="Add a private admin note for this order"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-3 text-sm text-dark bg-white min-h-24 focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10"
+                      className="w-full border border-[#e4d5c7] rounded-2xl px-4 py-3 text-sm text-dark bg-white min-h-24 focus:outline-none focus:border-terra focus:ring-2 focus:ring-terra/10"
                     />
                   </div>
                 </div>

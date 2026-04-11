@@ -64,10 +64,15 @@ export default function AdminSettingsPage() {
 
   return (
     <AdminLayout title="Settings">
-      <div className="max-w-2xl">
-        <p className="text-sm text-gray-400 mb-8">
+      <section className="rounded-[2rem] border border-[#e6d9cb] bg-[linear-gradient(135deg,#fffaf5_0%,#f6ede4_100%)] px-8 py-8 mb-8 shadow-[0_20px_60px_rgba(42,26,20,0.06)] max-w-4xl">
+        <p className="text-[10px] font-semibold text-terra uppercase tracking-[0.28em] mb-3">Store Configuration</p>
+        <h2 className="font-playfair text-4xl text-dark mb-3">A quieter place to manage the essentials</h2>
+        <p className="max-w-2xl text-sm text-muted leading-relaxed">
           Update payment details and store location. Changes apply immediately for new customers.
         </p>
+      </section>
+
+      <div className="max-w-3xl">
 
         {loading ? (
           <div className="space-y-4">
@@ -79,7 +84,7 @@ export default function AdminSettingsPage() {
           <form onSubmit={handleSave} className="space-y-5">
 
             {/* Mobile Money section */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
+            <div className="bg-white rounded-[1.75rem] border border-[#e6d9cb] p-6 shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
               <SectionHeader
                 title="Mobile Money Payment"
                 description="These details are shown to customers at checkout."
@@ -120,7 +125,7 @@ export default function AdminSettingsPage() {
             </div>
 
             {/* Store location section */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
+            <div className="bg-white rounded-[1.75rem] border border-[#e6d9cb] p-6 shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
               <SectionHeader
                 title="Store Location"
                 description="Shown to customers who choose Studio Pickup at checkout."
@@ -136,7 +141,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-terra text-white px-6 py-2.5 text-sm font-medium rounded-lg hover:bg-brown transition-colors disabled:opacity-60"
+              className="bg-terra text-white px-6 py-3 text-sm font-medium rounded-2xl hover:bg-brown transition-colors disabled:opacity-60 shadow-[0_14px_35px_rgba(196,98,58,0.24)]"
             >
               {saving ? 'Saving…' : 'Save Changes'}
             </button>

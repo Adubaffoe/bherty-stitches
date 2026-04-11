@@ -182,14 +182,24 @@ export default function AdminProductsPage() {
 
   return (
     <AdminLayout title="Products">
+      <section className="rounded-[2rem] border border-[#e6d9cb] bg-[linear-gradient(135deg,#fffaf5_0%,#f6ede4_100%)] px-8 py-8 mb-8 shadow-[0_20px_60px_rgba(42,26,20,0.06)]">
+        <p className="text-[10px] font-semibold text-terra uppercase tracking-[0.28em] mb-3">Collection Studio</p>
+        <h2 className="font-playfair text-4xl text-dark mb-3">Shape the storefront with cleaner control</h2>
+        <p className="max-w-2xl text-sm text-muted leading-relaxed">
+          Manage your catalog, imagery, badges, and visibility from a product workspace that feels calmer and more editorial.
+        </p>
+      </section>
 
       {/* Header row */}
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-gray-400">{products.length} product{products.length !== 1 ? 's' : ''}</p>
+      <div className="flex items-center justify-between mb-6 rounded-[1.6rem] border border-[#e6d9cb] bg-white px-6 py-5 shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted mb-1">Catalog Count</p>
+          <p className="font-playfair text-3xl text-dark">{products.length}</p>
+        </div>
         {!showForm && (
           <button
             onClick={() => { setShowForm(true); setForm(EMPTY_FORM); setEditingId(null); }}
-            className="flex items-center gap-2 bg-terra text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-brown transition-colors"
+            className="flex items-center gap-2 bg-terra text-white text-sm font-medium px-5 py-3 rounded-2xl hover:bg-brown transition-colors shadow-[0_14px_35px_rgba(196,98,58,0.24)]"
           >
             <span className="text-base leading-none">+</span> Add Product
           </button>
@@ -198,10 +208,10 @@ export default function AdminProductsPage() {
 
       {/* Add / Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-100 mb-6 overflow-hidden">
+        <div className="bg-white rounded-[1.75rem] border border-[#e6d9cb] mb-6 overflow-hidden shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
           {/* Form header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-dark">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#f1e7dc] bg-[#fffaf5]">
+            <h2 className="font-playfair text-2xl text-dark">
               {editingId ? 'Edit Product' : 'New Product'}
             </h2>
             <button onClick={cancelForm} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -297,7 +307,7 @@ export default function AdminProductsPage() {
       )}
 
       {/* Product table */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-[1.75rem] border border-[#e6d9cb] overflow-hidden shadow-[0_18px_45px_rgba(42,26,20,0.05)]">
         {loading ? (
           <div className="p-6 space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -314,17 +324,17 @@ export default function AdminProductsPage() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left px-6 py-3.5 text-xs font-medium text-gray-400 uppercase tracking-wider">Product</th>
-                <th className="text-left px-6 py-3.5 text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
-                <th className="text-left px-6 py-3.5 text-xs font-medium text-gray-400 uppercase tracking-wider">Badge</th>
-                <th className="text-left px-6 py-3.5 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="text-right px-6 py-3.5 text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+              <tr className="border-b border-[#f1e7dc] bg-[#fffaf5]">
+                <th className="text-left px-6 py-4 text-[10px] font-semibold text-muted uppercase tracking-[0.22em]">Product</th>
+                <th className="text-left px-6 py-4 text-[10px] font-semibold text-muted uppercase tracking-[0.22em]">Price</th>
+                <th className="text-left px-6 py-4 text-[10px] font-semibold text-muted uppercase tracking-[0.22em]">Badge</th>
+                <th className="text-left px-6 py-4 text-[10px] font-semibold text-muted uppercase tracking-[0.22em]">Status</th>
+                <th className="text-right px-6 py-4 text-[10px] font-semibold text-muted uppercase tracking-[0.22em]">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-[#f5ece2]">
               {products.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50/60 transition-colors">
+                <tr key={p.id} className="hover:bg-[#fffaf5] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 flex items-center justify-center text-base rounded-lg flex-shrink-0 overflow-hidden ${p.colorClass}`}>
