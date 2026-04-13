@@ -6,7 +6,6 @@ import { formatCedi } from '@/lib/formatCedi';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, setDoc } from 'firebase/firestore';
 import { fetchSettings, StoreSettings, DEFAULT_SETTINGS } from '@/lib/settings';
-import Link from 'next/link';
 import { buildPublicTrackingRecord, generateOrderNumber } from '@/lib/orderTracking';
 
 type DeliveryMode = 'delivery' | 'pickup' | null;
@@ -29,13 +28,6 @@ interface DeliveryInfo {
   deliveryDate: string;
   pickupDate: string;
   pickupTime: string;
-}
-
-interface PaymentInfo {
-  momoName: string;
-  momoNumber: string;
-  transactionId: string;
-  amountPaid: string;
 }
 
 const REGIONS = [
@@ -113,22 +105,17 @@ function DeliveryCard({ icon, title, sub, selected, onClick }: {
 
 /* ── Main component ─────────────────────────────────────── */
 export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
-  const { state, dispatch, totalPrice } = useCart();
+  const { state, totalPrice } = useCart();
   const [step, setStep] = useState<Step>(1);
   const [delMode, setDelMode] = useState<DeliveryMode>(null);
-  const [success, setSuccess] = useState(false);
-  const [waLink, setWaLink] = useState('');
-  const [orderNumber, setOrderNumber] = useState('');
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
+  const [redirecting, setRedirecting] = useState(false);
 
   const [contact, setContact] = useState<ContactInfo>({
     firstName: '', lastName: '', phone: '', email: '', measurements: '', notes: '',
   });
   const [delivery, setDelivery] = useState<DeliveryInfo>({
     address: '', town: '', region: '', landmark: '', deliveryDate: '', pickupDate: '', pickupTime: '',
-  });
-  const [payment, setPayment] = useState<PaymentInfo>({
-    momoName: '', momoNumber: '', transactionId: '', amountPaid: '',
   });
 
   useEffect(() => {
@@ -141,17 +128,16 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   }, [open]);
 
   function reset() {
-    setStep(1); setDelMode(null); setSuccess(false); setWaLink(''); setOrderNumber('');
+    setStep(1); setDelMode(null); setRedirecting(false);
     setContact({ firstName: '', lastName: '', phone: '', email: '', measurements: '', notes: '' });
     setDelivery({ address: '', town: '', region: '', landmark: '', deliveryDate: '', pickupDate: '', pickupTime: '' });
-    setPayment({ momoName: '', momoNumber: '', transactionId: '', amountPaid: '' });
   }
 
   function handleClose() { reset(); onClose(); }
 
   function validateStep1() {
-    if (!contact.firstName || !contact.lastName || !contact.phone) {
-      alert('Please fill in your First Name, Last Name, and Phone Number to continue.');
+    if (!contact.firstName || !contact.lastName || !contact.phone || !contact.email) {
+      alert('Please fill in your First Name, Last Name, Phone Number, and Email Address to continue.');
       return false;
     }
     return true;
@@ -169,14 +155,6 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
     return true;
   }
 
-  function validateStep3() {
-    if (!payment.momoName || !payment.momoNumber || !payment.transactionId) {
-      alert('Please enter your MoMo name, number, and transaction ID to continue.');
-      return false;
-    }
-    return true;
-  }
-
   async function placeOrder() {
     const generatedOrderNumber = generateOrderNumber();
     const orderItems = state.items.map((i) => ({
@@ -185,27 +163,14 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
       price: i.product.price,
       qty: i.qty,
     }));
-    const items = state.items.map((i) =>
-      `• ${i.product.emoji} ${i.product.name} × ${i.qty} = ${formatCedi(i.product.price * i.qty)}`
-    ).join('\n');
-
-    let delText = '';
-    if (delMode === 'delivery') {
-      delText = `🚚 *HOME DELIVERY${totalPrice >= 1000 ? ' (FREE)' : ''}*\nAddress: ${delivery.address}, ${delivery.town}, ${delivery.region}${delivery.landmark ? '\nNearby landmark: ' + delivery.landmark : ''}${delivery.deliveryDate ? '\nPreferred date: ' + delivery.deliveryDate : ''}`;
-    } else {
-      delText = `🏠 *STUDIO PICKUP — ${settings.storeLocation} (Free)*${delivery.pickupDate ? '\nPreferred date: ' + delivery.pickupDate : ''}${delivery.pickupTime ? '\nPreferred time: ' + delivery.pickupTime : ''}`;
-    }
-
-    const payText = `\n\n💳 *PAYMENT*\nMoMo Name: ${payment.momoName}\nMoMo Number: ${payment.momoNumber}\nTransaction ID: ${payment.transactionId}${payment.amountPaid ? '\nAmount Paid: GH₵ ' + payment.amountPaid : ''}`;
-
-    const msg = `Hi Bherty Stitches! 🧶\n\n*New Order from ${contact.firstName} ${contact.lastName}*\n🔖 Order Number: ${generatedOrderNumber}\n📱 ${contact.phone}${contact.email ? '\n📧 ' + contact.email : ''}\n\n*Items Ordered:*\n${items}\n\n*Items Total: ${formatCedi(totalPrice)}*\n\n${delText}${payText}${contact.measurements ? '\n\n📏 Measurements: ' + contact.measurements : ''}${contact.notes ? '\n\n📝 Notes: ' + contact.notes : ''}\n\nPlease confirm my order. Thank you! 😊`;
+    const customerName = `${contact.firstName} ${contact.lastName}`;
 
     try {
       const orderRef = await addDoc(collection(db, 'orders'), {
         orderNumber: generatedOrderNumber,
-        customerName: `${contact.firstName} ${contact.lastName}`,
+        customerName,
         phone: contact.phone,
-        email: contact.email || null,
+        email: contact.email,
         measurements: contact.measurements || null,
         notes: contact.notes || null,
         items: orderItems,
@@ -221,13 +186,10 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           preferredDate: delivery.pickupDate || null,
           preferredTime: delivery.pickupTime || null,
         },
-        paymentMethod: 'Mobile Money',
-        paymentAccountNameShown: settings.mobileMoneyName,
-        paymentAccountNumberShown: settings.mobileMoneyNumber,
-        customerMobileMoneyName: payment.momoName,
-        customerMobileMoneyNumber: payment.momoNumber,
-        transactionId: payment.transactionId,
-        amountPaid: payment.amountPaid ? parseFloat(payment.amountPaid) : null,
+        paymentMethod: 'Paystack',
+        paymentStatus: 'pending',
+        paystackReference: null,
+        paystackStatus: 'pending',
         status: 'new',
         createdAt: serverTimestamp(),
       });
@@ -246,21 +208,48 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
         }),
       );
 
-      await setDoc(orderRef, { trackingDocId: generatedOrderNumber, updatedAt: serverTimestamp() }, { merge: true });
-    } catch {
-      // Still proceed to WhatsApp even if Firestore write fails
-    }
+      const initializeRes = await fetch('/api/paystack/initialize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: contact.email,
+          amount: totalPrice,
+          orderId: orderRef.id,
+          orderNumber: generatedOrderNumber,
+          customerName,
+          origin: window.location.origin,
+        }),
+      });
 
-    setOrderNumber(generatedOrderNumber);
-    setWaLink(`https://wa.me/message/UYA6ZRENI4P7O1?text=${encodeURIComponent(msg)}`);
-    setSuccess(true);
-    dispatch({ type: 'CLEAR' });
+      const initializeData = await initializeRes.json();
+
+      if (!initializeRes.ok || !initializeData?.data?.authorization_url || !initializeData?.data?.reference) {
+        throw new Error(initializeData?.message || 'Unable to initialize Paystack payment.');
+      }
+
+      await setDoc(
+        orderRef,
+        {
+          trackingDocId: generatedOrderNumber,
+          paystackReference: initializeData.data.reference,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+
+      setRedirecting(true);
+      window.location.href = initializeData.data.authorization_url;
+      return;
+    } catch {
+      alert('We could not start the Paystack checkout. Please try again.');
+    }
   }
 
   function goNext() {
     if (step === 1 && !validateStep1()) return;
     if (step === 2 && !validateStep2()) return;
-    if (step === 3 && !validateStep3()) return;
     if (step === 4) { placeOrder(); return; }
     setStep((s) => (s + 1) as Step);
   }
@@ -271,7 +260,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
   if (!open) return null;
 
-  const stepLabels = ['Info', 'Delivery', 'Payment', 'Review'];
+  const stepLabels = ['Info', 'Delivery', 'Paystack', 'Review'];
 
   return (
     <>
@@ -296,79 +285,38 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           </div>
 
           {/* Step indicator */}
-          {!success && (
-            <div className="flex items-center gap-1.5">
-              {([1, 2, 3, 4] as Step[]).map((s, i) => (
-                <div key={s} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border-2 transition-all duration-200 ${
-                      step === s
-                        ? 'bg-terra border-terra text-white shadow-sm shadow-terra/30'
-                        : step > s
-                        ? 'bg-brown border-brown text-white'
-                        : 'bg-transparent border-muted/25 text-muted/60'
-                    }`}>
-                      {step > s ? (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                      ) : s}
-                    </div>
-                    <span className={`text-[9px] uppercase tracking-wider whitespace-nowrap font-medium ${step >= s ? 'text-terra' : 'text-muted/50'}`}>
-                      {stepLabels[i]}
-                    </span>
+          <div className="flex items-center gap-1.5">
+            {([1, 2, 3, 4] as Step[]).map((s, i) => (
+              <div key={s} className="flex items-center flex-1">
+                <div className="flex flex-col items-center gap-1">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border-2 transition-all duration-200 ${
+                    step === s
+                      ? 'bg-terra border-terra text-white shadow-sm shadow-terra/30'
+                      : step > s
+                      ? 'bg-brown border-brown text-white'
+                      : 'bg-transparent border-muted/25 text-muted/60'
+                  }`}>
+                    {step > s ? (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    ) : s}
                   </div>
-                  {i < 3 && (
-                    <div className={`flex-1 h-px mx-1.5 mb-3.5 transition-colors duration-200 ${step > s ? 'bg-brown' : 'bg-muted/15'}`} />
-                  )}
+                  <span className={`text-[9px] uppercase tracking-wider whitespace-nowrap font-medium ${step >= s ? 'text-terra' : 'text-muted/50'}`}>
+                    {stepLabels[i]}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
+                {i < 3 && (
+                  <div className={`flex-1 h-px mx-1.5 mb-3.5 transition-colors duration-200 ${step > s ? 'bg-brown' : 'bg-muted/15'}`} />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-7 py-6">
-          {success ? (
-            /* Success state */
-            <div className="text-center py-6">
-              <div className="w-16 h-16 bg-sage/15 rounded-full flex items-center justify-center text-3xl mx-auto mb-5">
-                🎉
-              </div>
-              <h3 className="font-playfair text-2xl text-dark mb-2">Order Received!</h3>
-              <p className="text-muted text-sm leading-relaxed mb-8 max-w-xs mx-auto">
-                Click below to send your order details to us on WhatsApp. We&apos;ll confirm and get started right away.
-              </p>
-              <div className="bg-cream rounded-2xl border border-terra/10 px-5 py-4 max-w-sm mx-auto mb-6">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted mb-2">Your Order Number</p>
-                <p className="font-playfair text-2xl text-terra break-all">{orderNumber}</p>
-                <p className="text-xs text-muted mt-2 leading-relaxed">
-                  Keep this number safe. You can track your order anytime on the website.
-                </p>
-              </div>
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 bg-[#25D366] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:brightness-95 transition-all hover:shadow-lg hover:-translate-y-px"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                Send Order via WhatsApp
-              </a>
-              <Link
-                href={`/track-order?order=${encodeURIComponent(orderNumber)}`}
-                className="inline-flex items-center gap-2.5 border border-terra/30 text-terra px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-terra hover:text-white transition-all mt-3"
-              >
-                Track This Order
-              </Link>
-              <p className="text-muted/60 text-xs mt-4">
-                We&apos;ll confirm your order within a few hours.
-              </p>
-            </div>
-
-          ) : step === 1 ? (
+          {step === 1 ? (
             /* Step 1: Contact */
             <div className="flex flex-col gap-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-terra mb-1">Your Contact Details</p>
@@ -377,7 +325,7 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 <Field label="Last Name *" value={contact.lastName} onChange={(v) => setContact({ ...contact, lastName: v })} placeholder="Mensah" />
               </div>
               <Field label="Phone Number *" type="tel" value={contact.phone} onChange={(v) => setContact({ ...contact, phone: v })} placeholder="+233 XX XXX XXXX" />
-              <Field label="Email Address (optional)" type="email" value={contact.email} onChange={(v) => setContact({ ...contact, email: v })} placeholder="ama@email.com" />
+              <Field label="Email Address *" type="email" value={contact.email} onChange={(v) => setContact({ ...contact, email: v })} placeholder="ama@email.com" />
               <Field label="Measurements — chest / waist / hips / height (optional)" value={contact.measurements} onChange={(v) => setContact({ ...contact, measurements: v })} placeholder="36 / 28 / 38 / 5'6" />
               <TextareaField label="Special Notes or Requests" value={contact.notes} onChange={(v) => setContact({ ...contact, notes: v })} placeholder="Any special requests, colour preferences, deadline…" />
             </div>
@@ -453,9 +401,11 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           ) : step === 3 ? (
             /* Step 3: Payment */
             <div className="flex flex-col gap-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-terra mb-1">Mobile Money Payment</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-terra mb-1">Secure Checkout with Paystack</p>
               {settings.paymentInstructions && (
-                <p className="text-sm text-muted leading-relaxed">{settings.paymentInstructions}</p>
+                <p className="text-sm text-muted leading-relaxed">
+                  You&apos;ll be redirected to Paystack to complete your payment securely. We&apos;ll bring you back here immediately after payment.
+                </p>
               )}
 
               {/* Payment details card */}
@@ -463,19 +413,19 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/5 -translate-y-8 translate-x-8" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-8 -translate-x-8" />
                 <div className="relative">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 mb-4">Send Payment To</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 mb-4">Paystack Checkout</p>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs text-white/60 uppercase tracking-wider">Network</span>
-                      <span className="text-sm font-medium">{settings.provider}</span>
+                      <span className="text-xs text-white/60 uppercase tracking-wider">Methods</span>
+                      <span className="text-sm font-medium">Card, Bank, MoMo</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-xs text-white/60 uppercase tracking-wider">Number</span>
-                      <span className="text-2xl font-bold tracking-widest font-playfair">{settings.mobileMoneyNumber}</span>
+                      <span className="text-xs text-white/60 uppercase tracking-wider">Email</span>
+                      <span className="text-sm font-semibold">{contact.email || 'Required to continue'}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-xs text-white/60 uppercase tracking-wider">Name</span>
-                      <span className="text-sm font-semibold">{settings.mobileMoneyName}</span>
+                      <span className="text-xs text-white/60 uppercase tracking-wider">Order Flow</span>
+                      <span className="text-sm font-semibold">Redirect and verify</span>
                     </div>
                     <div className="border-t border-white/15 pt-3 mt-1 flex justify-between items-center">
                       <span className="text-xs text-white/60 uppercase tracking-wider">Amount Due</span>
@@ -485,11 +435,14 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 </div>
               </div>
 
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-terra mt-1">Confirm Your Payment *</p>
-              <Field label="Your MoMo Name *" value={payment.momoName} onChange={(v) => setPayment({ ...payment, momoName: v })} placeholder="Name on your MoMo account" />
-              <Field label="Your MoMo Number *" type="tel" value={payment.momoNumber} onChange={(v) => setPayment({ ...payment, momoNumber: v })} placeholder="0XX XXX XXXX" />
-              <Field label="Transaction ID *" value={payment.transactionId} onChange={(v) => setPayment({ ...payment, transactionId: v })} placeholder="e.g. A12345678B" />
-              <Field label="Amount Paid (optional)" type="number" value={payment.amountPaid} onChange={(v) => setPayment({ ...payment, amountPaid: v })} placeholder={`${totalPrice}`} />
+              <div className="bg-cream rounded-xl p-4 border border-terra/10 text-sm text-dark">
+                <p className="font-semibold text-xs uppercase tracking-wider text-terra mb-2">Before You Continue</p>
+                <ul className="space-y-2 text-sm text-muted">
+                  <li>Paystack will handle the payment securely.</li>
+                  <li>Your order number will be created before you leave this site.</li>
+                  <li>After payment, we will bring you back automatically to confirm the transaction.</li>
+                </ul>
+              </div>
             </div>
 
           ) : (
@@ -539,8 +492,8 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 {/* Payment */}
                 <div className="border-t border-muted/10 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted mb-2">💳 Payment</p>
-                  <p className="text-sm text-dark">{payment.momoName} · {payment.momoNumber}</p>
-                  <p className="text-xs text-muted mt-0.5">Txn ID: {payment.transactionId}</p>
+                  <p className="text-sm text-dark">Paystack secure checkout</p>
+                  <p className="text-xs text-muted mt-0.5">You&apos;ll pay after clicking the button below.</p>
                 </div>
 
                 {/* Contact */}
@@ -554,37 +507,37 @@ export default function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               </div>
 
               <p className="text-xs text-muted/70 leading-relaxed">
-                By placing your order, your details will be sent to our WhatsApp for confirmation. 🧶
+                By continuing, your order will be created and you&apos;ll be redirected to Paystack to complete payment securely.
               </p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        {!success && (
-          <div className="flex items-center justify-between px-7 py-4 border-t border-terra/8 bg-white/40 flex-shrink-0">
-            <button
-              onClick={goBack}
-              className={`flex items-center gap-1.5 text-xs font-medium text-muted hover:text-terra transition-colors ${step === 1 ? 'invisible' : ''}`}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        <div className="flex items-center justify-between px-7 py-4 border-t border-terra/8 bg-white/40 flex-shrink-0">
+          <button
+            onClick={goBack}
+            disabled={redirecting}
+            className={`flex items-center gap-1.5 text-xs font-medium text-muted hover:text-terra transition-colors disabled:opacity-40 ${step === 1 ? 'invisible' : ''}`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back
+          </button>
+          <button
+            onClick={goNext}
+            disabled={redirecting}
+            className="flex items-center gap-2 bg-terra text-white text-xs font-semibold uppercase tracking-[0.16em] px-6 py-2.5 rounded-full hover:bg-brown transition-all duration-200 hover:shadow-md hover:-translate-y-px disabled:opacity-60"
+          >
+            {redirecting ? 'Redirecting…' : step === 4 ? 'Pay with Paystack' : 'Continue'}
+            {step < 4 && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
               </svg>
-              Back
-            </button>
-            <button
-              onClick={goNext}
-              className="flex items-center gap-2 bg-terra text-white text-xs font-semibold uppercase tracking-[0.16em] px-6 py-2.5 rounded-full hover:bg-brown transition-all duration-200 hover:shadow-md hover:-translate-y-px"
-            >
-              {step === 4 ? 'Place My Order' : 'Continue'}
-              {step < 4 && (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                </svg>
-              )}
-            </button>
-          </div>
-        )}
+            )}
+          </button>
+        </div>
       </div>
     </>
   );
